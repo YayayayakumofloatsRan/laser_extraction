@@ -1,0 +1,5 @@
+﻿image_name,point_count,roi,filter_mode,segment_count,csv_path
+data003.png,5496,"ROI(x=0, y=2189, w=5496, h=341)",gaussian,1,d:\laser_extraction\python_workspace\notebook_outputs\任务2-噪声图像\data003_centers.csv
+data003_noisy_sigma50.png,5496,"ROI(x=0, y=2189, w=5496, h=341)",gaussian,1,d:\laser_extraction\python_workspace\notebook_outputs\任务2-噪声图像\data003_noisy_sigma50_centers.csv
+data003_noisy_sigma75.png,5496,"ROI(x=0, y=2189, w=5496, h=341)",gaussian,1,d:\laser_extraction\python_workspace\notebook_outputs\任务2-噪声图像\data003_noisy_sigma75_centers.csv
+data003_noisy_sigma100.png,5496,"ROI(x=0, y=2189, w=5496, h=341)",gaussian,1,d:\laser_extraction\python_workspace\notebook_outputs\任务2-噪声图像\data003_noisy_sigma100_centers.csv

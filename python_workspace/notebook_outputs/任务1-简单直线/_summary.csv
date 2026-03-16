@@ -1,0 +1,2 @@
+﻿image_name,point_count,roi,filter_mode,segment_count,csv_path
+laserline.png,5496,"ROI(x=0, y=1653, w=5496, h=183)",gaussian,1,d:\laser_extraction\python_workspace\notebook_outputs\任务1-简单直线\laserline_centers.csv
