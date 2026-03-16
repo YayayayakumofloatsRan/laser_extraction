@@ -1,6 +1,8 @@
 
 # 激光条纹中心提取项目
 
+Powered by Codex GPT-5.4
+
 这是一个基于 Python 与 Jupyter Notebook 的激光条纹中心提取项目，支持交互式参数调整、不同方法对比和结果导出。
 
 本项目面向三类任务：
