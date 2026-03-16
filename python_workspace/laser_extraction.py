@@ -11,21 +11,23 @@ import numpy as np
 
 
 SCRIPT_DIR = Path(__file__).resolve().parent
-IMAGE_ROOT = SCRIPT_DIR / "仿真实践图片"
+IMAGE_ROOT = SCRIPT_DIR / "\u4eff\u771f\u5b9e\u8df5\u56fe\u7247"
+
+TASK1 = "\u4efb\u52a11-\u7b80\u5355\u76f4\u7ebf"
+TASK2 = "\u4efb\u52a12-\u566a\u58f0\u56fe\u50cf"
+TASK3 = "\u4efb\u52a13-\u590d\u6742\u6fc0\u5149\u6761\u7eb9"
 
 TASK_IMAGE_MAP = {
-    "任务1-简单直线": [
-        IMAGE_ROOT / "任务1-简单直线" / "laserline.png",
+    TASK1: [IMAGE_ROOT / TASK1 / "laserline.png"],
+    TASK2: [
+        IMAGE_ROOT / TASK2 / "data003.png",
+        IMAGE_ROOT / TASK2 / "data003_noisy_sigma50.png",
+        IMAGE_ROOT / TASK2 / "data003_noisy_sigma75.png",
+        IMAGE_ROOT / TASK2 / "data003_noisy_sigma100.png",
     ],
-    "任务2-噪声图像": [
-        IMAGE_ROOT / "任务2-噪声图像" / "data003.png",
-        IMAGE_ROOT / "任务2-噪声图像" / "data003_noisy_sigma50.png",
-        IMAGE_ROOT / "任务2-噪声图像" / "data003_noisy_sigma75.png",
-        IMAGE_ROOT / "任务2-噪声图像" / "data003_noisy_sigma100.png",
-    ],
-    "任务3-复杂激光条纹": [
-        IMAGE_ROOT / "任务3-复杂激光条纹" / "Pic_20260121221817667_aug0.png",
-        IMAGE_ROOT / "任务3-复杂激光条纹" / "Pic_20260121225030094_aug0.png",
+    TASK3: [
+        IMAGE_ROOT / TASK3 / "Pic_20260121221817667_aug0.png",
+        IMAGE_ROOT / TASK3 / "Pic_20260121225030094_aug0.png",
     ],
 }
 
@@ -54,23 +56,26 @@ class ExtractionResult:
     centers: np.ndarray
     raw_roi: np.ndarray
     filtered_roi: np.ndarray
+    enhanced_roi: np.ndarray
     gray_raw: np.ndarray
     display_image: np.ndarray
     raw_profile: np.ndarray
     filtered_profile: np.ndarray
+    enhanced_profile: np.ndarray
     profile_column_index: int
     filter_mode: str
     segment_count: int
+    extraction_method: str
 
 
 def read_image_unicode(path: str | Path, flags: int = cv2.IMREAD_UNCHANGED) -> np.ndarray:
     path = Path(path)
     if not path.exists():
-        raise FileNotFoundError(f"找不到图像文件: {path}")
+        raise FileNotFoundError(f"Image file not found: {path}")
     data = np.fromfile(str(path), dtype=np.uint8)
     image = cv2.imdecode(data, flags)
     if image is None:
-        raise ValueError(f"无法解码图像文件: {path}")
+        raise ValueError(f"Failed to decode image: {path}")
     return image
 
 
@@ -79,7 +84,7 @@ def ensure_grayscale(image: np.ndarray) -> np.ndarray:
         return image
     if image.ndim == 3:
         return cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    raise ValueError(f"不支持的图像维度: {image.shape}")
+    raise ValueError(f"Unsupported image shape: {image.shape}")
 
 
 def normalize_for_display(gray_raw: np.ndarray) -> np.ndarray:
@@ -95,7 +100,6 @@ def make_odd(kernel_size: int) -> int:
 
 def apply_filter(image: np.ndarray, filter_mode: str = "gaussian", kernel_size: int = 21) -> np.ndarray:
     kernel_size = make_odd(kernel_size)
-
     if filter_mode == "none":
         return image.copy()
     if filter_mode == "gaussian":
@@ -107,11 +111,30 @@ def apply_filter(image: np.ndarray, filter_mode: str = "gaussian", kernel_size: 
     if filter_mode == "median+gaussian":
         return cv2.GaussianBlur(cv2.medianBlur(image, kernel_size), (kernel_size, kernel_size), 0)
     if filter_mode == "bilateral+gaussian":
-        bilateral_size = max(5, min(kernel_size, 15))
-        bilateral_size = make_odd(bilateral_size)
+        bilateral_size = make_odd(max(5, min(kernel_size, 15)))
         bilateral = cv2.bilateralFilter(image, bilateral_size, 75, 75)
         return cv2.GaussianBlur(bilateral, (kernel_size, kernel_size), 0)
-    raise ValueError(f"未知滤波模式: {filter_mode}")
+    raise ValueError(f"Unknown filter mode: {filter_mode}")
+
+
+def estimate_background(image: np.ndarray, kernel_size: int = 51) -> np.ndarray:
+    kernel_size = make_odd(kernel_size)
+    kernel = np.ones((kernel_size, kernel_size), dtype=np.uint8)
+    return cv2.morphologyEx(image, cv2.MORPH_OPEN, kernel)
+
+
+def smooth_centerline(centers: np.ndarray, kernel_size: int = 15, max_deviation: float = 12.0) -> np.ndarray:
+    if len(centers) == 0:
+        return centers
+    kernel_size = make_odd(max(3, kernel_size))
+    y = centers[:, 1].astype(np.float32)
+    pad = kernel_size // 2
+    padded = np.pad(y, (pad, pad), mode="edge")
+    median_y = np.array([np.median(padded[i : i + kernel_size]) for i in range(len(y))], dtype=np.float32)
+    smoothed = centers.copy()
+    mask = np.abs(y - median_y) > float(max_deviation)
+    smoothed[mask, 1] = median_y[mask]
+    return smoothed
 
 
 def suggest_roi(
@@ -125,15 +148,12 @@ def suggest_roi(
     max_value = float(np.max(filtered))
     if max_value <= 0:
         return ROI(0, 0, gray_raw.shape[1], gray_raw.shape[0])
-
     binary = filtered >= max_value * float(threshold_ratio)
     points = np.column_stack(np.where(binary))
     if len(points) == 0:
         return ROI(0, 0, gray_raw.shape[1], gray_raw.shape[0])
-
     y_min, x_min = points.min(axis=0)
     y_max, x_max = points.max(axis=0)
-
     x = max(int(x_min) - padding, 0)
     y = max(int(y_min) - padding, 0)
     w = min(int(x_max) + padding, gray_raw.shape[1] - 1) - x + 1
@@ -148,34 +168,69 @@ def extract_centers_from_roi(
     threshold_ratio: float = 0.3,
     filter_mode: str = "gaussian",
     segment_count: int = 1,
-) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, int]:
+    extraction_method: str = "global_centroid",
+    background_kernel: int = 51,
+    peak_window_half_height: int = 22,
+    smooth_kernel_size: int = 15,
+    smooth_max_deviation: float = 12.0,
+) -> tuple[np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, np.ndarray, int]:
     roi = roi.clipped(gray_raw.shape[1], gray_raw.shape[0])
-    roi_gray = gray_raw[roi.y : roi.y + roi.h, roi.x : roi.x + roi.w].copy()
-    filtered_roi = apply_filter(roi_gray, filter_mode=filter_mode, kernel_size=blur_kernel)
+    raw_roi = gray_raw[roi.y : roi.y + roi.h, roi.x : roi.x + roi.w].copy()
+    filtered_roi = apply_filter(raw_roi, filter_mode=filter_mode, kernel_size=blur_kernel)
+    background = estimate_background(filtered_roi, kernel_size=background_kernel)
+    enhanced_roi = cv2.subtract(filtered_roi, background)
 
-    rows, cols = filtered_roi.shape
+    rows, cols = enhanced_roi.shape
     centers: list[list[float]] = []
-    segment_count = max(1, int(segment_count))
-    segment_edges = np.linspace(0, cols, segment_count + 1, dtype=int)
+    y_all = np.arange(rows, dtype=np.float32)
+    segment_edges = np.linspace(0, cols, max(1, int(segment_count)) + 1, dtype=int)
+    peak_window_half_height = max(2, int(peak_window_half_height))
 
     for start, end in zip(segment_edges[:-1], segment_edges[1:]):
         for i in range(start, end):
-            col_data = filtered_roi[:, i].astype(np.float32)
-            threshold = float(np.max(col_data)) * float(threshold_ratio)
-            col_data[col_data < threshold] = 0
+            col = enhanced_roi[:, i].astype(np.float32)
+            if extraction_method == "peak_window_centroid":
+                peak_idx = int(np.argmax(col))
+                lo = max(0, peak_idx - peak_window_half_height)
+                hi = min(rows, peak_idx + peak_window_half_height + 1)
+                work = col[lo:hi].copy()
+                y_idx = np.arange(lo, hi, dtype=np.float32)
+            else:
+                work = col.copy()
+                y_idx = y_all
 
-            sum_i = float(np.sum(col_data))
-            if sum_i <= 0:
+            peak = float(np.max(work))
+            if peak <= 0:
                 continue
-
-            y_indices = np.arange(rows, dtype=np.float32)
-            centroid_y = float(np.sum(y_indices * col_data) / sum_i)
+            work[work < peak * float(threshold_ratio)] = 0
+            total = float(np.sum(work))
+            if total <= 0:
+                continue
+            centroid_y = float(np.sum(y_idx * work) / total)
             centers.append([float(roi.x + i), float(roi.y + centroid_y)])
 
+    centers_array = np.asarray(centers, dtype=np.float32)
+    if extraction_method == "peak_window_centroid":
+        centers_array = smooth_centerline(
+            centers_array,
+            kernel_size=smooth_kernel_size,
+            max_deviation=smooth_max_deviation,
+        )
+
     profile_column_index = cols // 2
-    raw_profile = roi_gray[:, profile_column_index].astype(np.float32)
+    raw_profile = raw_roi[:, profile_column_index].astype(np.float32)
     filtered_profile = filtered_roi[:, profile_column_index].astype(np.float32)
-    return np.asarray(centers, dtype=np.float32), roi_gray, filtered_roi, raw_profile, filtered_profile, profile_column_index
+    enhanced_profile = enhanced_roi[:, profile_column_index].astype(np.float32)
+    return (
+        centers_array,
+        raw_roi,
+        filtered_roi,
+        enhanced_roi,
+        raw_profile,
+        filtered_profile,
+        enhanced_profile,
+        profile_column_index,
+    )
 
 
 def overlay_centers(display_image: np.ndarray, centers: np.ndarray, roi: ROI | None = None) -> np.ndarray:
@@ -188,10 +243,19 @@ def overlay_centers(display_image: np.ndarray, centers: np.ndarray, roi: ROI | N
             (0, 255, 255),
             2,
         )
-
     for x, y in centers:
         cv2.circle(result, (int(round(x)), int(round(y))), 1, (0, 0, 255), -1)
     return result
+
+
+def build_manual_roi_preview(display_image: np.ndarray) -> np.ndarray:
+    preview = cv2.cvtColor(display_image, cv2.COLOR_GRAY2BGR)
+    edges = cv2.Canny(display_image, 60, 180)
+    preview[edges > 0] = (0, 255, 0)
+    height, width = display_image.shape[:2]
+    cv2.line(preview, (width // 2, 0), (width // 2, height - 1), (255, 255, 0), 1)
+    cv2.line(preview, (0, height // 2), (width - 1, height // 2), (255, 255, 0), 1)
+    return preview
 
 
 def save_centers_csv(centers: np.ndarray, output_path: str | Path) -> Path:
@@ -206,7 +270,7 @@ def save_centers_csv(centers: np.ndarray, output_path: str | Path) -> Path:
 
 def load_task_images(task_name: str) -> list[Path]:
     if task_name not in TASK_IMAGE_MAP:
-        raise KeyError(f"未知任务: {task_name}")
+        raise KeyError(f"Unknown task: {task_name}")
     return [path for path in TASK_IMAGE_MAP[task_name] if path.exists()]
 
 
@@ -219,12 +283,15 @@ def process_image(
     roi_padding: int = 20,
     filter_mode: str = "gaussian",
     segment_count: int = 1,
+    extraction_method: str = "global_centroid",
+    background_kernel: int = 51,
+    peak_window_half_height: int = 22,
+    smooth_kernel_size: int = 15,
+    smooth_max_deviation: float = 12.0,
 ) -> ExtractionResult:
     image_path = Path(image_path)
-    img_raw = read_image_unicode(image_path)
-    gray_raw = ensure_grayscale(img_raw)
+    gray_raw = ensure_grayscale(read_image_unicode(image_path))
     display_image = normalize_for_display(gray_raw)
-
     if auto_roi or roi is None:
         roi = suggest_roi(
             gray_raw,
@@ -233,36 +300,52 @@ def process_image(
             padding=roi_padding,
             filter_mode=filter_mode,
         )
-
-    centers, raw_roi, filtered_roi, raw_profile, filtered_profile, profile_column_index = extract_centers_from_roi(
+    (
+        centers,
+        raw_roi,
+        filtered_roi,
+        enhanced_roi,
+        raw_profile,
+        filtered_profile,
+        enhanced_profile,
+        profile_column_index,
+    ) = extract_centers_from_roi(
         gray_raw,
         roi=roi,
         blur_kernel=blur_kernel,
         threshold_ratio=threshold_ratio,
         filter_mode=filter_mode,
         segment_count=segment_count,
+        extraction_method=extraction_method,
+        background_kernel=background_kernel,
+        peak_window_half_height=peak_window_half_height,
+        smooth_kernel_size=smooth_kernel_size,
+        smooth_max_deviation=smooth_max_deviation,
     )
-
     return ExtractionResult(
         image_path=image_path,
         roi=roi,
         centers=centers,
         raw_roi=raw_roi,
         filtered_roi=filtered_roi,
+        enhanced_roi=enhanced_roi,
         gray_raw=gray_raw,
         display_image=display_image,
         raw_profile=raw_profile,
         filtered_profile=filtered_profile,
+        enhanced_profile=enhanced_profile,
         profile_column_index=profile_column_index,
         filter_mode=filter_mode,
         segment_count=max(1, int(segment_count)),
+        extraction_method=extraction_method,
     )
 
 
-def plot_profile(raw_profile: np.ndarray, filtered_profile: np.ndarray, column_index: int) -> None:
+def plot_profile(raw_profile: np.ndarray, filtered_profile: np.ndarray, enhanced_profile: np.ndarray, column_index: int) -> None:
     plt.figure(figsize=(8, 4))
     plt.plot(raw_profile, color="gray", alpha=0.8, label="raw")
-    plt.plot(filtered_profile, color="blue", label="filtered")
+    plt.plot(filtered_profile, color="royalblue", label="filtered")
+    plt.plot(enhanced_profile, color="crimson", label="background-suppressed")
     plt.title(f"Intensity Profile of ROI Column {column_index}")
     plt.xlabel("Y Coordinate")
     plt.ylabel("Intensity")
@@ -274,44 +357,39 @@ def plot_profile(raw_profile: np.ndarray, filtered_profile: np.ndarray, column_i
 
 def show_result_window(result: ExtractionResult) -> None:
     result_image = overlay_centers(result.display_image, result.centers, result.roi)
-    win_name = "Extraction Result"
-    cv2.namedWindow(win_name, cv2.WINDOW_NORMAL)
-    cv2.imshow(win_name, result_image)
+    cv2.namedWindow("Extraction Result", cv2.WINDOW_NORMAL)
+    cv2.imshow("Extraction Result", result_image)
     cv2.waitKey(0)
     cv2.destroyAllWindows()
 
 
 def select_roi_with_opencv(display_image: np.ndarray) -> ROI:
-    win_name = "Select ROI and press ENTER"
-    cv2.namedWindow(win_name, cv2.WINDOW_NORMAL)
-    x, y, w, h = cv2.selectROI(win_name, display_image, fromCenter=False)
-    cv2.destroyWindow(win_name)
+    cv2.namedWindow("Select ROI and press ENTER", cv2.WINDOW_NORMAL)
+    x, y, w, h = cv2.selectROI("Select ROI and press ENTER", display_image, fromCenter=False)
+    cv2.destroyWindow("Select ROI and press ENTER")
     if w <= 0 or h <= 0:
-        raise ValueError("未选择有效 ROI")
+        raise ValueError("No valid ROI selected")
     return ROI(int(x), int(y), int(w), int(h))
 
 
 def parse_args() -> argparse.Namespace:
-    parser = argparse.ArgumentParser(description="激光中心线提取脚本")
-    parser.add_argument("--image", type=Path, default=None, help="待处理图像路径")
-    parser.add_argument("--output", type=Path, default=SCRIPT_DIR / "results.csv", help="CSV 输出路径")
-    parser.add_argument("--blur-kernel", type=int, default=21, help="高斯滤波核大小")
-    parser.add_argument("--threshold-ratio", type=float, default=0.3, help="按列动态阈值比例")
-    parser.add_argument("--auto-roi", action="store_true", help="自动估计 ROI，不打开手动框选窗口")
-    parser.add_argument("--roi-padding", type=int, default=20, help="自动 ROI 外扩像素")
-    parser.add_argument("--show-plot", action="store_true", help="显示中间列强度曲线")
-    parser.add_argument("--show-window", action="store_true", help="显示 OpenCV 结果窗口")
+    parser = argparse.ArgumentParser(description="Laser centerline extraction")
+    parser.add_argument("--image", type=Path, default=None, help="Input image path")
+    parser.add_argument("--output", type=Path, default=SCRIPT_DIR / "results.csv", help="CSV output path")
+    parser.add_argument("--blur-kernel", type=int, default=21, help="Blur kernel size")
+    parser.add_argument("--threshold-ratio", type=float, default=0.25, help="Threshold ratio")
+    parser.add_argument("--auto-roi", action="store_true", help="Use auto ROI instead of OpenCV ROI window")
+    parser.add_argument("--roi-padding", type=int, default=20, help="Auto ROI padding")
+    parser.add_argument("--show-plot", action="store_true", help="Show intensity profile plot")
+    parser.add_argument("--show-window", action="store_true", help="Show OpenCV result window")
     return parser.parse_args()
 
 
 def main() -> None:
     args = parse_args()
-
-    image_path = args.image or load_task_images("任务1-简单直线")[0]
-    img_raw = read_image_unicode(image_path)
-    gray_raw = ensure_grayscale(img_raw)
+    image_path = args.image or load_task_images(TASK1)[0]
+    gray_raw = ensure_grayscale(read_image_unicode(image_path))
     display_image = normalize_for_display(gray_raw)
-
     if args.auto_roi:
         roi = suggest_roi(
             gray_raw,
@@ -330,16 +408,14 @@ def main() -> None:
         threshold_ratio=args.threshold_ratio,
         auto_roi=False,
         roi_padding=args.roi_padding,
-        filter_mode="gaussian",
-        segment_count=1,
+        filter_mode="gaussian+median",
+        extraction_method="peak_window_centroid",
     )
-
     output_path = save_centers_csv(result.centers, args.output)
-    print(f"实验完成，中心点已保存至: {output_path}")
-    print(f"共提取 {len(result.centers)} 个中心点，ROI={result.roi}")
-
+    print(f"Done. Saved center points to: {output_path}")
+    print(f"Extracted {len(result.centers)} points, ROI={result.roi}")
     if args.show_plot:
-        plot_profile(result.raw_profile, result.filtered_profile, result.profile_column_index)
+        plot_profile(result.raw_profile, result.filtered_profile, result.enhanced_profile, result.profile_column_index)
     if args.show_window:
         show_result_window(result)
 
