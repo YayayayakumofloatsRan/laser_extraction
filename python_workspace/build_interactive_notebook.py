@@ -381,13 +381,15 @@ def build_notebook() -> dict:
 
                 image_path = Path(image_dropdown.value)
                 meta = get_image_meta(image_path)
+                manual_preview = le.build_manual_roi_preview(meta["display"])
+
                 with manual_roi_output:
                     clear_output(wait=True)
-                    print("Opening ROI selection window on the original image. Drag a rectangle, press Enter to confirm, or Esc to cancel.")
+                    print("Opening ROI selection window on the original image. The window is enlarged and uses a crosshair to make the ROI range clearer. Drag a rectangle, press Enter to confirm, or Esc to cancel.")
 
                 roi_mode_dropdown.value = "manual"
                 try:
-                    roi = le.select_roi_with_opencv(meta["display"])
+                    roi = le.select_roi_with_opencv(manual_preview)
                     set_roi_sliders(roi, image_path)
                     with manual_roi_output:
                         clear_output(wait=True)

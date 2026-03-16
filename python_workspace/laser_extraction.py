@@ -301,11 +301,8 @@ def overlay_centers(display_image: np.ndarray, centers: np.ndarray, roi: ROI | N
 
 def build_manual_roi_preview(display_image: np.ndarray) -> np.ndarray:
     preview = cv2.cvtColor(display_image, cv2.COLOR_GRAY2BGR)
-    edges = cv2.Canny(display_image, 60, 180)
-    preview[edges > 0] = (0, 255, 0)
     height, width = display_image.shape[:2]
-    cv2.line(preview, (width // 2, 0), (width // 2, height - 1), (255, 255, 0), 1)
-    cv2.line(preview, (0, height // 2), (width - 1, height // 2), (255, 255, 0), 1)
+    cv2.rectangle(preview, (0, 0), (width - 1, height - 1), (255, 255, 255), 2)
     return preview
 
 
@@ -415,9 +412,12 @@ def show_result_window(result: ExtractionResult) -> None:
 
 
 def select_roi_with_opencv(display_image: np.ndarray) -> ROI:
-    cv2.namedWindow("Select ROI and press ENTER", cv2.WINDOW_NORMAL)
-    x, y, w, h = cv2.selectROI("Select ROI and press ENTER", display_image, fromCenter=False)
-    cv2.destroyWindow("Select ROI and press ENTER")
+    window_name = "Select ROI and press ENTER"
+    height, width = display_image.shape[:2]
+    cv2.namedWindow(window_name, cv2.WINDOW_NORMAL)
+    cv2.resizeWindow(window_name, min(width, 1600), min(height, 900))
+    x, y, w, h = cv2.selectROI(window_name, display_image, showCrosshair=True, fromCenter=False)
+    cv2.destroyWindow(window_name)
     if w <= 0 or h <= 0:
         raise ValueError("No valid ROI selected")
     return ROI(int(x), int(y), int(w), int(h))
