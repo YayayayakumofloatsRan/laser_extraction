@@ -134,16 +134,18 @@ def build_notebook() -> dict:
                 le.TASK3: "Task 3 - Complex Laser Stripe",
             }
             FILTER_OPTIONS = [
-                ("none", "none"),
-                ("gaussian", "gaussian"),
-                ("median", "median"),
-                ("gaussian+median", "gaussian+median"),
-                ("median+gaussian", "median+gaussian"),
-                ("bilateral+gaussian", "bilateral+gaussian"),
+                ("None", "none"),
+                ("Gaussian", "gaussian"),
+                ("Median", "median"),
+                ("Gaussian -> Median", "gaussian+median"),
+                ("Median -> Gaussian", "median+gaussian"),
+                ("Bilateral -> Gaussian", "bilateral+gaussian"),
             ]
             EXTRACTION_OPTIONS = [
                 ("Global Centroid", "global_centroid"),
                 ("Peak-Window Centroid", "peak_window_centroid"),
+                ("Gaussian Fit", "gaussian_fit"),
+                ("Steger-Like Ridge", "steger_like"),
             ]
             ROI_MODE_OPTIONS = [("Fixed ROI", "fixed"), ("Manual ROI", "manual"), ("Auto ROI", "auto")]
             FIXED_ROI_BY_TASK = {
@@ -333,16 +335,19 @@ def build_notebook() -> dict:
                     extraction_dropdown.value = "peak_window_centroid"
                     background_slider.value = 51
                     peak_window_slider.value = 22
+                    segment_slider.value = 1
                 elif task_name == le.TASK1:
                     filter_dropdown.value = "gaussian"
                     extraction_dropdown.value = "global_centroid"
                     background_slider.value = 51
                     peak_window_slider.value = 22
+                    segment_slider.value = 1
                 elif task_name == le.TASK3:
                     filter_dropdown.value = "gaussian"
                     extraction_dropdown.value = "peak_window_centroid"
                     background_slider.value = 51
                     peak_window_slider.value = 22
+                    segment_slider.value = 4
 
 
             def on_task_changed(change) -> None:
@@ -376,15 +381,13 @@ def build_notebook() -> dict:
 
                 image_path = Path(image_dropdown.value)
                 meta = get_image_meta(image_path)
-                manual_preview = le.build_manual_roi_preview(meta["display"])
-
                 with manual_roi_output:
                     clear_output(wait=True)
-                    print("Opening ROI selection window. Green lines show contours, cyan lines show reference centerlines. Drag a rectangle, press Enter to confirm, or Esc to cancel.")
+                    print("Opening ROI selection window on the original image. Drag a rectangle, press Enter to confirm, or Esc to cancel.")
 
                 roi_mode_dropdown.value = "manual"
                 try:
-                    roi = le.select_roi_with_opencv(manual_preview)
+                    roi = le.select_roi_with_opencv(meta["display"])
                     set_roi_sliders(roi, image_path)
                     with manual_roi_output:
                         clear_output(wait=True)

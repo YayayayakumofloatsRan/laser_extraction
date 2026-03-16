@@ -137,6 +137,41 @@ def smooth_centerline(centers: np.ndarray, kernel_size: int = 15, max_deviation:
     return smoothed
 
 
+def quadratic_subpixel_offset(y_minus: float, y0: float, y_plus: float) -> float:
+    denom = y_minus - 2.0 * y0 + y_plus
+    if abs(denom) < 1e-6:
+        return 0.0
+    offset = 0.5 * (y_minus - y_plus) / denom
+    return float(np.clip(offset, -1.0, 1.0))
+
+
+def steger_like_center(column: np.ndarray, peak_idx: int) -> float:
+    if peak_idx <= 0 or peak_idx >= len(column) - 1:
+        return float(peak_idx)
+    offset = quadratic_subpixel_offset(
+        float(column[peak_idx - 1]),
+        float(column[peak_idx]),
+        float(column[peak_idx + 1]),
+    )
+    return float(peak_idx + offset)
+
+
+def gaussian_fit_center(column: np.ndarray, peak_idx: int, half_window: int = 3) -> float:
+    lo = max(0, peak_idx - half_window)
+    hi = min(len(column), peak_idx + half_window + 1)
+    y_idx = np.arange(lo, hi, dtype=np.float64)
+    values = column[lo:hi].astype(np.float64)
+    values = np.maximum(values, 1e-6)
+    if len(y_idx) < 3:
+        return float(peak_idx)
+    coeffs = np.polyfit(y_idx, np.log(values), deg=2)
+    a, b, _ = coeffs
+    if abs(a) < 1e-9:
+        return float(peak_idx)
+    center = -b / (2.0 * a)
+    return float(np.clip(center, lo, hi - 1))
+
+
 def suggest_roi(
     gray_raw: np.ndarray,
     blur_kernel: int = 21,
@@ -189,7 +224,9 @@ def extract_centers_from_roi(
     for start, end in zip(segment_edges[:-1], segment_edges[1:]):
         for i in range(start, end):
             col = enhanced_roi[:, i].astype(np.float32)
-            if extraction_method == "peak_window_centroid":
+            peak_idx = int(np.argmax(col))
+
+            if extraction_method in {"peak_window_centroid", "gaussian_fit", "steger_like"}:
                 peak_idx = int(np.argmax(col))
                 lo = max(0, peak_idx - peak_window_half_height)
                 hi = min(rows, peak_idx + peak_window_half_height + 1)
@@ -206,11 +243,25 @@ def extract_centers_from_roi(
             total = float(np.sum(work))
             if total <= 0:
                 continue
-            centroid_y = float(np.sum(y_idx * work) / total)
+
+            if extraction_method == "global_centroid" or extraction_method == "peak_window_centroid":
+                centroid_y = float(np.sum(y_idx * work) / total)
+            elif extraction_method == "gaussian_fit":
+                local_peak = int(np.argmax(work))
+                centroid_y = gaussian_fit_center(work, local_peak, half_window=min(3, len(work) // 2))
+                if extraction_method != "global_centroid":
+                    centroid_y += float(lo)
+            elif extraction_method == "steger_like":
+                local_peak = int(np.argmax(work))
+                centroid_y = steger_like_center(work, local_peak)
+                centroid_y += float(lo)
+            else:
+                raise ValueError(f"Unknown extraction method: {extraction_method}")
+
             centers.append([float(roi.x + i), float(roi.y + centroid_y)])
 
     centers_array = np.asarray(centers, dtype=np.float32)
-    if extraction_method == "peak_window_centroid":
+    if extraction_method in {"peak_window_centroid", "gaussian_fit", "steger_like"}:
         centers_array = smooth_centerline(
             centers_array,
             kernel_size=smooth_kernel_size,
