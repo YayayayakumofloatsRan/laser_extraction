@@ -30,33 +30,29 @@ def build_notebook() -> dict:
     cells = [
         markdown_cell(
             """
-            # Experiment: Interactive Laser Centerline Extraction Notebook
+            # 激光中心线提取交互式 Notebook
 
-            Objective:
-            - Build an interactive notebook on top of the existing centroid-based workflow in `laser_extraction.py`.
-            - Run Task 1, Task 2, and Task 3 independently.
-            - Show step-by-step figures and short analysis for each task.
+            ## 目标
 
-            ## Scope
+            - 基于 `laser_extraction.py` 中已有的中心提取流程，构建一个可交互运行的 notebook。
+            - 支持任务 1、任务 2、任务 3 分别单独运行。
+            - 在每个任务中展示关键处理中间结果，并便于对不同方法做对比实验。
 
-            - Task 1: center extraction for a simple straight laser stripe.
-            - Task 2: denoising plus center extraction for noisy laser stripes.
-            - Task 3: center extraction for complex laser stripe shapes with optional segmented processing.
+            ## 内容范围
+
+            - 任务 1：简单直线激光条纹中心提取。
+            - 任务 2：噪声激光条纹的去噪与中心提取。
+            - 任务 3：复杂激光条纹的中心提取与分段处理。
             """
         ),
         markdown_cell(
             """
-            ## Usage
+            ## 说明
 
-            - `ROI Mode` supports three strategies:
-              - `Fixed ROI`: use a preset ROI for the selected task.
-              - `Manual ROI`: adjust `x/y/w/h` with sliders or open the OpenCV ROI window.
-              - `Auto ROI`: estimate ROI automatically from the bright stripe.
-            - `Filter Mode` is mainly for Task 2, to compare denoising combinations.
-            - `Segments` is mainly for Task 3, to process complex stripes by sub-regions.
-            - `Preview Current Setup` shows step-by-step figures and a short analysis.
-            - `Run Current Image` processes only the selected image.
-            - `Run All Images In Task` exports CSV files for every image in the selected task.
+            - notebook 开头说明使用中文，便于阅读与汇报整理。
+            - 交互控件、按钮和运行状态提示保持英文，避免影响已有使用习惯。
+            - 可在同一套界面中切换 ROI 方式、滤波方式和中心提取方法。
+            - 任务 3 支持分段处理，便于对复杂条纹做局部分析。
             """
         ),
         code_cell(
@@ -258,7 +254,7 @@ def build_notebook() -> dict:
                         lines.append("**Analysis**: whole-ROI processing is used; if local shape variation is large, try increasing the segment count.")
                 else:
                     lines.append("**Analysis**: the straight stripe is stable, and the centroid method usually gives a continuous centerline directly.")
-                return "  \\\\n".join(lines)
+                return "  \\n".join(lines)
             """
         ),
         code_cell(
@@ -307,8 +303,6 @@ def build_notebook() -> dict:
             w_slider = widgets.IntSlider(description="ROI w", min=1, continuous_update=False, layout=widgets.Layout(width="560px"))
             h_slider = widgets.IntSlider(description="ROI h", min=1, continuous_update=False, layout=widgets.Layout(width="560px"))
 
-            apply_fixed_roi_button = widgets.Button(description="Load Fixed ROI", button_style="info")
-            apply_auto_roi_button = widgets.Button(description="Estimate Auto ROI", button_style="info")
             manual_roi_button = widgets.Button(description="Open Manual ROI Window", button_style="info")
             preview_button = widgets.Button(description="Preview Current Setup", button_style="warning")
             run_image_button = widgets.Button(description="Run Current Image", button_style="success")
@@ -503,10 +497,10 @@ def build_notebook() -> dict:
                 with run_output:
                     clear_output(wait=True)
                     display(Markdown(
-                        f"**Current image processed**  \\\\n"
-                        f"- Task: `{TASK_DISPLAY_NAMES[task_name]}`  \\\\n"
-                        f"- Image: `{result.image_path.name}`  \\\\n"
-                        f"- Points: `{len(result.centers)}`  \\\\n"
+                        f"**Current image processed**  \\n"
+                        f"- Task: `{TASK_DISPLAY_NAMES[task_name]}`  \\n"
+                        f"- Image: `{result.image_path.name}`  \\n"
+                        f"- Points: `{len(result.centers)}`  \\n"
                         f"- CSV: `{output_path}`"
                     ))
 
@@ -560,8 +554,6 @@ def build_notebook() -> dict:
             image_dropdown.observe(sync_sliders_for_image, names="value")
             roi_mode_dropdown.observe(sync_sliders_for_image, names="value")
 
-            apply_fixed_roi_button.on_click(load_fixed_roi)
-            apply_auto_roi_button.on_click(load_auto_roi)
             manual_roi_button.on_click(open_manual_roi_window)
             preview_button.on_click(render_preview)
             run_image_button.on_click(run_single_image)
@@ -584,7 +576,7 @@ def build_notebook() -> dict:
                 y_slider,
                 w_slider,
                 h_slider,
-                widgets.HBox([apply_fixed_roi_button, apply_auto_roi_button, manual_roi_button, preview_button, run_image_button, run_task_button]),
+                widgets.HBox([manual_roi_button, preview_button, run_image_button, run_task_button]),
                 manual_roi_output,
                 preview_output,
                 run_output,
