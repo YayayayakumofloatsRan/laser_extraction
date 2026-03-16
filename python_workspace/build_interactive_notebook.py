@@ -143,6 +143,14 @@ def build_notebook() -> dict:
                 ("Gaussian Fit", "gaussian_fit"),
                 ("Steger-Like Ridge", "steger_like"),
             ]
+            GRAY_OPTIONS = [
+                ("OpenCV Gray", "opencv"),
+                ("Luminance", "luminance"),
+                ("Red Channel", "red"),
+                ("Green Channel", "green"),
+                ("Blue Channel", "blue"),
+                ("Max Channel", "max_channel"),
+            ]
             ROI_MODE_OPTIONS = [("Fixed ROI", "fixed"), ("Manual ROI", "manual"), ("Auto ROI", "auto")]
             FIXED_ROI_BY_TASK = {
                 le.TASK1: le.ROI(0, 1653, 5496, 183),
@@ -166,15 +174,18 @@ def build_notebook() -> dict:
 
             def get_image_meta(image_path: Path) -> dict:
                 image_path = Path(image_path)
-                if image_path not in IMAGE_CACHE:
-                    gray_raw = le.ensure_grayscale(le.read_image_unicode(image_path))
-                    IMAGE_CACHE[image_path] = {
+                cache_key = (image_path, gray_dropdown.value)
+                if cache_key not in IMAGE_CACHE:
+                    original = le.read_image_unicode(image_path)
+                    gray_raw = le.ensure_grayscale(original, method=gray_dropdown.value)
+                    IMAGE_CACHE[cache_key] = {
+                        "original": original,
                         "gray": gray_raw,
                         "display": le.normalize_for_display(gray_raw),
                         "height": int(gray_raw.shape[0]),
                         "width": int(gray_raw.shape[1]),
                     }
-                return IMAGE_CACHE[image_path]
+                return IMAGE_CACHE[cache_key]
 
 
             def build_result_path(task_name: str, image_path: Path) -> Path:
@@ -292,6 +303,13 @@ def build_notebook() -> dict:
                 layout=widgets.Layout(width="360px"),
             )
 
+            gray_dropdown = widgets.Dropdown(
+                options=GRAY_OPTIONS,
+                value="opencv",
+                description="Gray Mode",
+                layout=widgets.Layout(width="360px"),
+            )
+
             blur_slider = widgets.IntSlider(value=21, min=3, max=61, step=2, description="Kernel", continuous_update=False, layout=widgets.Layout(width="560px"))
             threshold_slider = widgets.FloatSlider(value=0.25, min=0.05, max=0.90, step=0.01, description="Threshold", readout_format=".2f", continuous_update=False, layout=widgets.Layout(width="560px"))
             padding_slider = widgets.IntSlider(value=20, min=0, max=200, step=2, description="Padding", continuous_update=False, layout=widgets.Layout(width="560px"))
@@ -375,7 +393,7 @@ def build_notebook() -> dict:
 
                 image_path = Path(image_dropdown.value)
                 meta = get_image_meta(image_path)
-                manual_preview = le.build_manual_roi_preview(meta["display"])
+                manual_preview = le.build_manual_roi_preview(meta["original"])
 
                 with manual_roi_output:
                     clear_output(wait=True)
@@ -424,6 +442,7 @@ def build_notebook() -> dict:
                 result = le.process_image(
                     image_path=image_path,
                     roi=roi,
+                    gray_method=gray_dropdown.value,
                     blur_kernel=blur_slider.value,
                     threshold_ratio=threshold_slider.value,
                     auto_roi=False,
@@ -435,13 +454,11 @@ def build_notebook() -> dict:
                     peak_window_half_height=peak_window_slider.value,
                 )
 
-                overlay = le.overlay_centers(result.display_image, result.centers, result.roi)
-
                 with preview_output:
                     clear_output(wait=True)
                     fig, axes = plt.subplots(2, 3, figsize=(20, 10))
 
-                    axes[0, 0].imshow(result.display_image, cmap="gray")
+                    axes[0, 0].imshow(result.original_image[:, :, ::-1])
                     axes[0, 0].add_patch(plt.Rectangle((result.roi.x, result.roi.y), result.roi.w, result.roi.h, fill=False, edgecolor="yellow", linewidth=2))
                     axes[0, 0].set_title("Step 1: Original Image + ROI")
                     axes[0, 0].axis("off")
@@ -463,21 +480,38 @@ def build_notebook() -> dict:
                     axes[1, 0].grid(True)
                     axes[1, 0].legend()
 
-                    axes[1, 1].imshow(overlay[:, :, ::-1])
+                    axes[1, 1].imshow(result.original_image[:, :, ::-1])
+                    axes[1, 1].plot(
+                        result.centers[:, 0],
+                        result.centers[:, 1],
+                        color="red",
+                        linewidth=1.2,
+                        solid_capstyle="round",
+                    )
+                    axes[1, 1].add_patch(
+                        plt.Rectangle(
+                            (result.roi.x, result.roi.y),
+                            result.roi.w,
+                            result.roi.h,
+                            fill=False,
+                            edgecolor="yellow",
+                            linewidth=2,
+                        )
+                    )
                     axes[1, 1].set_title(f"Step 5: Center Extraction Result, points={len(result.centers)}")
                     axes[1, 1].axis("off")
 
-                    axes[1, 2].imshow(result.display_image, cmap="gray")
+                    axes[1, 2].imshow(result.filtered_roi, cmap="gray")
                     if result.segment_count > 1:
-                        edges = np.linspace(result.roi.x, result.roi.x + result.roi.w, result.segment_count + 1)
+                        edges = np.linspace(0, result.filtered_roi.shape[1], result.segment_count + 1)
                         for edge in edges[1:-1]:
                             axes[1, 2].axvline(edge, color="cyan", linestyle="--", linewidth=1.2)
-                    axes[1, 2].add_patch(plt.Rectangle((result.roi.x, result.roi.y), result.roi.w, result.roi.h, fill=False, edgecolor="red", linewidth=2))
-                    axes[1, 2].set_title("Step 6: ROI / Segment Layout")
+                    axes[1, 2].set_title("Step 6: ROI Segment Layout")
                     axes[1, 2].axis("off")
 
                     plt.tight_layout()
                     plt.show()
+                    plt.close(fig)
                     display(Markdown(describe_result(task_dropdown.value, result)))
 
                 return result
@@ -503,8 +537,6 @@ def build_notebook() -> dict:
                         f"- Points: `{len(result.centers)}`  \\n"
                         f"- CSV: `{output_path}`"
                     ))
-
-
             def run_task_batch(*_args) -> None:
                 task_name = task_dropdown.value
                 image_paths = get_task_images(task_name)
@@ -519,6 +551,7 @@ def build_notebook() -> dict:
                     result = le.process_image(
                         image_path=image_path,
                         roi=roi,
+                        gray_method=gray_dropdown.value,
                         blur_kernel=blur_slider.value,
                         threshold_ratio=threshold_slider.value,
                         auto_roi=False,
@@ -550,9 +583,29 @@ def build_notebook() -> dict:
         ),
         code_cell(
             """
+            # Make callback registration idempotent so rerunning this cell
+            # does not stack handlers and duplicate outputs.
+            def _safe_unobserve(widget, handler, names):
+                try:
+                    widget.unobserve(handler, names=names)
+                except (ValueError, KeyError):
+                    pass
+
+
+            _safe_unobserve(task_dropdown, on_task_changed, "value")
+            _safe_unobserve(image_dropdown, sync_sliders_for_image, "value")
+            _safe_unobserve(roi_mode_dropdown, sync_sliders_for_image, "value")
+            _safe_unobserve(gray_dropdown, sync_sliders_for_image, "value")
+
+            manual_roi_button.on_click(open_manual_roi_window, remove=True)
+            preview_button.on_click(render_preview, remove=True)
+            run_image_button.on_click(run_single_image, remove=True)
+            run_task_button.on_click(run_task_batch, remove=True)
+
             task_dropdown.observe(on_task_changed, names="value")
             image_dropdown.observe(sync_sliders_for_image, names="value")
             roi_mode_dropdown.observe(sync_sliders_for_image, names="value")
+            gray_dropdown.observe(sync_sliders_for_image, names="value")
 
             manual_roi_button.on_click(open_manual_roi_window)
             preview_button.on_click(render_preview)
@@ -566,6 +619,7 @@ def build_notebook() -> dict:
             ui = widgets.VBox([
                 widgets.HBox([task_dropdown, image_dropdown]),
                 widgets.HBox([roi_mode_dropdown, filter_dropdown, extraction_dropdown]),
+                gray_dropdown,
                 blur_slider,
                 threshold_slider,
                 padding_slider,
@@ -582,7 +636,6 @@ def build_notebook() -> dict:
                 run_output,
             ])
             display(ui)
-            render_preview()
             """
         ),
     ]

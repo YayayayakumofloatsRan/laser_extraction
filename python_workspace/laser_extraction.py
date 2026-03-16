@@ -69,6 +69,7 @@ class ExtractionResult:
     image_path: Path
     roi: ROI
     centers: np.ndarray
+    original_image: np.ndarray
     raw_roi: np.ndarray
     filtered_roi: np.ndarray
     enhanced_roi: np.ndarray
@@ -81,6 +82,7 @@ class ExtractionResult:
     filter_mode: str
     segment_count: int
     extraction_method: str
+    gray_method: str
 
 
 def read_image_unicode(path: str | Path, flags: int = cv2.IMREAD_UNCHANGED) -> np.ndarray:
@@ -99,13 +101,35 @@ def read_image_unicode(path: str | Path, flags: int = cv2.IMREAD_UNCHANGED) -> n
     return image
 
 
-def ensure_grayscale(image: np.ndarray) -> np.ndarray:
-    """将输入图像统一转换成灰度图。"""
+def ensure_grayscale(image: np.ndarray, method: str = "opencv") -> np.ndarray:
+    """将输入图像统一转换成灰度图。
+
+    支持多种灰度化策略，便于在 notebook 中对比：
+    - opencv: OpenCV 标准灰度变换
+    - luminance: 手工加权亮度
+    - red / green / blue: 直接取单个颜色通道
+    - max_channel: 取三个通道最大值，适合强调亮条纹
+    """
     if image.ndim == 2:
         return image
-    if image.ndim == 3:
+    if image.ndim != 3:
+        raise ValueError(f"Unsupported image shape: {image.shape}")
+
+    if method == "opencv":
         return cv2.cvtColor(image, cv2.COLOR_BGR2GRAY)
-    raise ValueError(f"Unsupported image shape: {image.shape}")
+    if method == "luminance":
+        b, g, r = cv2.split(image.astype(np.float32))
+        gray = 0.114 * b + 0.587 * g + 0.299 * r
+        return np.clip(gray, 0, 255).astype(np.uint8)
+    if method == "blue":
+        return image[:, :, 0]
+    if method == "green":
+        return image[:, :, 1]
+    if method == "red":
+        return image[:, :, 2]
+    if method == "max_channel":
+        return np.max(image, axis=2).astype(np.uint8)
+    raise ValueError(f"Unknown gray method: {method}")
 
 
 def normalize_for_display(gray_raw: np.ndarray) -> np.ndarray:
@@ -176,6 +200,46 @@ def smooth_centerline(centers: np.ndarray, kernel_size: int = 15, max_deviation:
     mask = np.abs(y - median_y) > float(max_deviation)
     smoothed[mask, 1] = median_y[mask]
     return smoothed
+
+
+def densify_centerline(centers: np.ndarray, roi: ROI, max_gap: int = 3) -> np.ndarray:
+    """按列补全短缺口，避免结果出现细碎断点。
+
+    注意这里不是“整段全插值”，而是只补很短的列缺失。
+    这样能在保证连续性的同时，尽量保留尖锐拐点和局部突变信息。
+    """
+    if len(centers) == 0:
+        return centers
+    if len(centers) == 1:
+        return centers.astype(np.float32)
+
+    order = np.argsort(centers[:, 0])
+    ordered = centers[order]
+    x_known = ordered[:, 0].astype(np.float32)
+    y_known = ordered[:, 1].astype(np.float32)
+
+    # 去掉重复 x，避免后续插值在重复自变量上不稳定。
+    unique_x, unique_indices = np.unique(x_known, return_index=True)
+    unique_y = y_known[unique_indices]
+    points: list[list[float]] = []
+
+    for idx in range(len(unique_x) - 1):
+        x0 = int(unique_x[idx])
+        y0 = float(unique_y[idx])
+        x1 = int(unique_x[idx + 1])
+        y1 = float(unique_y[idx + 1])
+
+        points.append([float(x0), y0])
+        gap = x1 - x0 - 1
+
+        # 只对很短的缺口做线性补点；长缺口保留为空，避免把尖锐结构拉平。
+        if 0 < gap <= max_gap:
+            for step in range(1, gap + 1):
+                alpha = step / float(gap + 1)
+                points.append([float(x0 + step), float((1.0 - alpha) * y0 + alpha * y1)])
+
+    points.append([float(unique_x[-1]), float(unique_y[-1])])
+    return np.asarray(points, dtype=np.float32)
 
 
 def quadratic_subpixel_offset(y_minus: float, y0: float, y_plus: float) -> float:
@@ -356,9 +420,18 @@ def extract_centers_from_roi(
     )
 
 
+def ensure_bgr_image(image: np.ndarray) -> np.ndarray:
+    """将输入图统一转成 BGR 三通道，便于后续统一叠加绘制。"""
+    if image.ndim == 2:
+        return cv2.cvtColor(image, cv2.COLOR_GRAY2BGR)
+    if image.ndim == 3:
+        return image.copy()
+    raise ValueError(f"Unsupported image shape: {image.shape}")
+
+
 def overlay_centers(display_image: np.ndarray, centers: np.ndarray, roi: ROI | None = None) -> np.ndarray:
     """将 ROI 和中心点叠加到显示图上。"""
-    result = cv2.cvtColor(display_image, cv2.COLOR_GRAY2BGR)
+    result = ensure_bgr_image(display_image)
     if roi is not None:
         cv2.rectangle(
             result,
@@ -367,8 +440,10 @@ def overlay_centers(display_image: np.ndarray, centers: np.ndarray, roi: ROI | N
             (0, 255, 255),
             2,
         )
-    for x, y in centers:
-        cv2.circle(result, (int(round(x)), int(round(y))), 1, (0, 0, 255), -1)
+    if len(centers) >= 2:
+        polyline = np.round(centers).astype(np.int32).reshape((-1, 1, 2))
+        # popup 与叠加图都以连续红线为主，不再额外画粗红点。
+        cv2.polylines(result, [polyline], False, (0, 0, 255), 1)
     return result
 
 
@@ -378,7 +453,7 @@ def build_manual_roi_preview(display_image: np.ndarray) -> np.ndarray:
     当前保持原图内容不变，只额外绘制完整边框，
     让用户在边缘位置选框时更容易看清图像边界。
     """
-    preview = cv2.cvtColor(display_image, cv2.COLOR_GRAY2BGR)
+    preview = ensure_bgr_image(display_image)
     height, width = display_image.shape[:2]
     cv2.rectangle(preview, (0, 0), (width - 1, height - 1), (255, 255, 255), 2)
     return preview
@@ -405,6 +480,7 @@ def load_task_images(task_name: str) -> list[Path]:
 def process_image(
     image_path: str | Path,
     roi: ROI | None = None,
+    gray_method: str = "opencv",
     blur_kernel: int = 21,
     threshold_ratio: float = 0.3,
     auto_roi: bool = False,
@@ -423,7 +499,8 @@ def process_image(
     读图 -> 灰度化 -> ROI 获取 -> 滤波/去背景 -> 中心提取 -> 结果打包
     """
     image_path = Path(image_path)
-    gray_raw = ensure_grayscale(read_image_unicode(image_path))
+    original_image = read_image_unicode(image_path)
+    gray_raw = ensure_grayscale(original_image, method=gray_method)
     display_image = normalize_for_display(gray_raw)
     if auto_roi or roi is None:
         roi = suggest_roi(
@@ -459,6 +536,7 @@ def process_image(
         image_path=image_path,
         roi=roi,
         centers=centers,
+        original_image=original_image,
         raw_roi=raw_roi,
         filtered_roi=filtered_roi,
         enhanced_roi=enhanced_roi,
@@ -471,6 +549,7 @@ def process_image(
         filter_mode=filter_mode,
         segment_count=max(1, int(segment_count)),
         extraction_method=extraction_method,
+        gray_method=gray_method,
     )
 
 
@@ -491,7 +570,7 @@ def plot_profile(raw_profile: np.ndarray, filtered_profile: np.ndarray, enhanced
 
 def show_result_window(result: ExtractionResult) -> None:
     """用 OpenCV 弹窗展示最终叠加结果。"""
-    result_image = overlay_centers(result.display_image, result.centers, result.roi)
+    result_image = overlay_centers(result.original_image, result.centers, result.roi)
     cv2.namedWindow("Extraction Result", cv2.WINDOW_NORMAL)
     cv2.imshow("Extraction Result", result_image)
     cv2.waitKey(0)
@@ -521,6 +600,7 @@ def parse_args() -> argparse.Namespace:
     parser.add_argument("--image", type=Path, default=None, help="Input image path")
     parser.add_argument("--output", type=Path, default=SCRIPT_DIR / "results.csv", help="CSV output path")
     parser.add_argument("--blur-kernel", type=int, default=21, help="Blur kernel size")
+    parser.add_argument("--gray-method", type=str, default="opencv", help="Gray conversion method")
     parser.add_argument("--threshold-ratio", type=float, default=0.25, help="Threshold ratio")
     parser.add_argument("--auto-roi", action="store_true", help="Use auto ROI instead of OpenCV ROI window")
     parser.add_argument("--roi-padding", type=int, default=20, help="Auto ROI padding")
@@ -533,7 +613,8 @@ def main() -> None:
     """命令行入口，默认处理任务 1 的第一张图。"""
     args = parse_args()
     image_path = args.image or load_task_images(TASK1)[0]
-    gray_raw = ensure_grayscale(read_image_unicode(image_path))
+    original_image = read_image_unicode(image_path)
+    gray_raw = ensure_grayscale(original_image, method=args.gray_method)
     display_image = normalize_for_display(gray_raw)
     if args.auto_roi:
         roi = suggest_roi(
@@ -549,6 +630,7 @@ def main() -> None:
     result = process_image(
         image_path=image_path,
         roi=roi,
+        gray_method=args.gray_method,
         blur_kernel=args.blur_kernel,
         threshold_ratio=args.threshold_ratio,
         auto_roi=False,
