@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-30T21:17:29",
+  "generated_at": "2026-03-30T21:50:50",
   "config_path": "D:\\laser_extraction\\python_workspace\\light_plane_calibration_config.json",
   "camera_calibration_path": "D:\\laser_extraction\\output\\camera_calibration\\calibration_result.npz",
   "stripe_extraction_params": {
@@ -93,33 +93,33 @@
       "roi": [
         1750,
         1200,
-        2000,
+        1900,
         350
       ],
-      "point_count": 2000,
+      "point_count": 1900,
       "overlay_path": "D:\\laser_extraction\\output\\light_plane_calibration\\overlays\\Laser2_laser_overlay.png",
       "pipeline_plot_path": "D:\\laser_extraction\\output\\light_plane_calibration\\Laser2_pipeline.png"
     }
   ],
   "light_plane": {
     "equation": {
-      "A": 0.0329862124123792,
-      "B": -0.8950945827921143,
-      "C": -0.44465446995042807,
-      "D": 42.13752921077206
+      "A": 0.03298112421773207,
+      "B": -0.8950960216553757,
+      "C": -0.4446519509257257,
+      "D": 42.13727632743358
     },
     "metrics_mm": {
-      "mean_abs_mm": 0.029694469733171032,
-      "rmse_mm": 0.03622583795407907,
-      "std_mm": 0.03622583795407907,
-      "max_abs_mm": 0.10868123530767804
+      "mean_abs_mm": 0.030038183746567002,
+      "rmse_mm": 0.03654540905269314,
+      "std_mm": 0.03654540905269314,
+      "max_abs_mm": 0.10865356856508157
     },
     "metrics_um": {
-      "mean_abs_um": 29.694469733171033,
-      "rmse_um": 36.22583795407907,
-      "std_um": 36.22583795407907,
-      "max_abs_um": 108.68123530767804
+      "mean_abs_um": 30.038183746567004,
+      "rmse_um": 36.545409052693145,
+      "std_um": 36.545409052693145,
+      "max_abs_um": 108.65356856508157
     },
-    "point_count": 4000
+    "point_count": 3900
   }
 }

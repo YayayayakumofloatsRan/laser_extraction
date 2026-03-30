@@ -5,6 +5,7 @@
 - The physical board scale currently assumes `1.0 mm` center spacing. If the real effective spacing differs, extrinsic translation scale must be recalibrated.
 - The light-plane validation image currently needs manual ROI and segment ranges; if the acquisition setup changes, the config must be updated instead of reusing the current defaults blindly.
 - Because ROI is currently manual, the new pipeline/profile plots should be checked whenever validation accuracy moves unexpectedly; the quantity-block result is sensitive to segment placement and ROI drift.
+- The `Laser2` ROI is especially sensitive. During audit, moving it toward a visually more centered box drove the quantity-block error into the tens to hundreds of microns. The currently audited stable box is `ROI=[1750, 1200, 1900, 350]`.
 - The `Cam_pos -> Laser` pairing is a hard dependency. Using the wrong pair can still produce a visually plausible light plane while destroying the step-height validation result.
 - The `global_centroid` variant produced a false-good `0.053 um` averaged result because the left and right edge errors cancelled each other. It should not be used as the default validation setting for this dataset.
 - A tiny averaged step-height error can still be false comfort if the left and right edge heights disagree. Always check `edge_consistency_um` and `conservative_absolute_error_um` alongside the averaged result.

@@ -3,4 +3,6 @@ __pycache__/
 tmp/
 .ipynb_checkpoints/
 output/camera_calibration/detections/
+output/camera_calibration/*.png
 output/light_plane_calibration/overlays/
+output/light_plane_calibration/*.png

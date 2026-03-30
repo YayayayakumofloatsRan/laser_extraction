@@ -15,34 +15,34 @@
 - Validation enabled: True
 
 ## Light Plane Equation
-- A: 0.032986212
-- B: -0.895094583
-- C: -0.444654470
-- D: 42.137529211
+- A: 0.032981124
+- B: -0.895096022
+- C: -0.444651951
+- D: 42.137276327
 
 ## Plane Fit Metrics
-- Mean: 0.029694470 mm (29.694 um)
-- RMSE: 0.036225838 mm (36.226 um)
-- Std: 0.036225838 mm (36.226 um)
-- Max: 0.108681235 mm (108.681 um)
+- Mean: 0.030038184 mm (30.038 um)
+- RMSE: 0.036545409 mm (36.545 um)
+- Std: 0.036545409 mm (36.545 um)
+- Max: 0.108653569 mm (108.654 um)
 
 ## Laser / Reference Mapping
 - Laser1.png <- Cam_pos1.png, ROI=[1700, 1250, 2000, 350], points=2000, pipeline=D:\laser_extraction\output\light_plane_calibration\Laser1_pipeline.png
-- Laser2.png <- Cam_pos2.png, ROI=[1750, 1200, 2000, 350], points=2000, pipeline=D:\laser_extraction\output\light_plane_calibration\Laser2_pipeline.png
+- Laser2.png <- Cam_pos2.png, ROI=[1750, 1200, 1900, 350], points=1900, pipeline=D:\laser_extraction\output\light_plane_calibration\Laser2_pipeline.png
 
 ## Step Validation
 - Validation image: Pic_20260320142001841.png
 - ROI: [0, 1300, 5496, 650]
 - Segments: {'left': (400, 1500), 'step': (2500, 3600), 'right': (4500, 5000)}
 - Nominal height: 1.800000000 mm
-- Measured height: 1.797759644 mm
-- Absolute error: 0.002240356 mm (2.240 um)
-- Left-step distance: 1.802089201 mm
-- Right-step distance: 1.793430088 mm
-- Left edge absolute error: 2.089 um
-- Right edge absolute error: 6.570 um
+- Measured height: 1.797770158 mm
+- Absolute error: 0.002229842 mm (2.230 um)
+- Left-step distance: 1.802099738 mm
+- Right-step distance: 1.793440578 mm
+- Left edge absolute error: 2.100 um
+- Right edge absolute error: 6.559 um
 - Left/right consistency gap: 8.659 um
-- Conservative absolute error: 6.570 um
+- Conservative absolute error: 6.559 um
 - Validation pipeline plot: D:\laser_extraction\output\light_plane_calibration\Pic_20260320142001841_pipeline.png
 - Validation profile plot: D:\laser_extraction\output\light_plane_calibration\Pic_20260320142001841_profile.png
 
