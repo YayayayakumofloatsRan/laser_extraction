@@ -1,58 +1,59 @@
 {
-  "generated_at": "2026-03-30T18:18:08",
+  "generated_at": "2026-03-30T18:45:22",
   "config_path": "D:\\laser_extraction\\python_workspace\\light_plane_calibration_config.json",
   "camera_calibration_path": "D:\\laser_extraction\\output\\camera_calibration\\calibration_result.npz",
+  "world_reference_image": "Cam_pos15.png",
   "reference_poses": [
     {
-      "image_name": "Cam_pos1.png",
-      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos1.png",
+      "image_name": "Cam_pos15.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos15.png",
       "point_count": 81,
       "rotation_vector": [
-        0.3743239057400273,
-        -0.4163397772255519,
-        1.564188538220808
+        -0.18254560519704707,
+        -0.7517708711250355,
+        2.9608974115740385
       ],
       "translation_vector": [
-        4.418607827053992,
-        -4.257090001760911,
-        97.33841212752938
+        -1.0756338398558232,
+        3.420378250046859,
+        100.89539796728008
       ],
       "plane_normal": [
-        -0.01825518174062732,
-        -0.4816696865264437,
-        0.8761626911830555
+        -0.13518346089477715,
+        -0.4697199750539754,
+        0.872403906992514
       ],
-      "plane_offset": -87.25413384288112,
-      "overlay_path": "D:\\laser_extraction\\output\\light_plane_calibration\\overlays\\Cam_pos1_reference.png"
+      "plane_offset": -86.56032730305976,
+      "overlay_path": "D:\\laser_extraction\\output\\light_plane_calibration\\overlays\\Cam_pos15_reference.png"
     },
     {
-      "image_name": "Cam_pos2.png",
-      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos2.png",
+      "image_name": "Cam_pos17.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos17.png",
       "point_count": 81,
       "rotation_vector": [
-        0.28869546505518295,
-        -0.5130103406990725,
-        1.516299537739515
+        0.28922611705842005,
+        -0.48578610303903286,
+        1.476074850759437
       ],
       "translation_vector": [
-        4.523790681785933,
-        -4.0070710957654345,
-        96.9534190031085
+        5.651549595713434,
+        -1.0574338549399334,
+        98.58333776949198
       ],
       "plane_normal": [
-        -0.14022749776036786,
-        -0.4876159137588326,
-        0.8617232557619672
+        -0.1347619363235334,
+        -0.4727994933255349,
+        0.8708041453905979
       ],
-      "plane_offset": -84.8665676667726,
-      "overlay_path": "D:\\laser_extraction\\output\\light_plane_calibration\\overlays\\Cam_pos2_reference.png"
+      "plane_offset": -85.58511962020916,
+      "overlay_path": "D:\\laser_extraction\\output\\light_plane_calibration\\overlays\\Cam_pos17_reference.png"
     }
   ],
   "laser_inputs": [
     {
       "laser_image_name": "Laser1.png",
       "laser_image_path": "D:\\laser_extraction\\光平面标定及陶瓷量块数据\\光平面标定及陶瓷量块数据\\Laser-8\\Laser1.png",
-      "reference_image_name": "Cam_pos1.png",
+      "reference_image_name": "Cam_pos15.png",
       "roi": [
         1700,
         1250,
@@ -65,7 +66,7 @@
     {
       "laser_image_name": "Laser2.png",
       "laser_image_path": "D:\\laser_extraction\\光平面标定及陶瓷量块数据\\光平面标定及陶瓷量块数据\\Laser-8\\Laser2.png",
-      "reference_image_name": "Cam_pos2.png",
+      "reference_image_name": "Cam_pos17.png",
       "roi": [
         1750,
         1200,
@@ -78,22 +79,22 @@
   ],
   "light_plane": {
     "equation": {
-      "A": 0.03319208869413251,
-      "B": -0.9068181802187698,
-      "C": -0.4202131283918193,
-      "D": 39.43470257617745
+      "A": -0.06782626372657695,
+      "B": 0.8737368493000566,
+      "C": 0.48164667145543844,
+      "D": -45.39766642025697
     },
     "metrics_mm": {
-      "mean_abs_mm": 0.026348213599551806,
-      "rmse_mm": 0.0313836213037668,
-      "std_mm": 0.0313836213037668,
-      "max_abs_mm": 0.09503306197132844
+      "mean_abs_mm": 0.04455540098002342,
+      "rmse_mm": 0.05206262386457898,
+      "std_mm": 0.05206262386457898,
+      "max_abs_mm": 0.1491200441692655
     },
     "metrics_um": {
-      "mean_abs_um": 26.348213599551805,
-      "rmse_um": 31.383621303766798,
-      "std_um": 31.383621303766798,
-      "max_abs_um": 95.03306197132844
+      "mean_abs_um": 44.55540098002342,
+      "rmse_um": 52.06262386457898,
+      "std_um": 52.06262386457898,
+      "max_abs_um": 149.1200441692655
     },
     "point_count": 4000
   }

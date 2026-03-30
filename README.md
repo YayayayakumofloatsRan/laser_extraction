@@ -48,6 +48,6 @@ Default outputs:
 
 The default config assumes:
 
-- `Cam_pos1.png -> Laser1.png`
-- `Cam_pos2.png -> Laser2.png`
+- `Cam_pos15.png -> Laser1.png`
+- `Cam_pos17.png -> Laser2.png`
 - `Pic_20260320142001841.png` is used for step-height validation

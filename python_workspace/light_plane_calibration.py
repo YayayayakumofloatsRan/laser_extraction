@@ -319,10 +319,13 @@ def project_points_to_plane_basis(
     return np.column_stack((centered @ u_axis, centered @ v_axis))
 
 
-def compute_step_height(
-    points_3d: np.ndarray,
+def camera_to_world(points_3d: np.ndarray, rotation_matrix: np.ndarray, translation_vector: np.ndarray) -> np.ndarray:
+    return (points_3d - translation_vector.reshape(1, 3)) @ rotation_matrix
+
+
+def compute_step_height_world(
+    points_3d_world: np.ndarray,
     image_points: np.ndarray,
-    plane_normal: np.ndarray,
     segments: dict[str, tuple[int, int]],
 ) -> tuple[np.ndarray, np.ndarray, dict[str, np.ndarray]]:
     x_coords = image_points[:, 0]
@@ -334,27 +337,31 @@ def compute_step_height(
         if int(mask.sum()) < 100:
             raise RuntimeError(f"Validation segment '{key}' does not contain enough points.")
 
-    base_points = np.vstack([points_3d[masks["left"]], points_3d[masks["right"]]])
-    origin = base_points.mean(axis=0)
-    _, _, vh = np.linalg.svd(base_points - origin, full_matrices=False)
-    line_direction = vh[0]
-    line_direction /= np.linalg.norm(line_direction)
+    base_points_xy = np.vstack([points_3d_world[masks["left"], :2], points_3d_world[masks["right"], :2]])
+    xy_origin = base_points_xy.mean(axis=0)
+    _, _, vh = np.linalg.svd(base_points_xy - xy_origin, full_matrices=False)
+    profile_direction_xy = vh[0]
+    profile_direction_xy /= np.linalg.norm(profile_direction_xy)
 
-    projected = project_points_to_plane_basis(points_3d, plane_normal, line_direction, origin)
+    projected = np.column_stack(
+        (
+            (points_3d_world[:, :2] - xy_origin.reshape(1, 2)) @ profile_direction_xy,
+            points_3d_world[:, 2],
+        )
+    )
     line_fits: dict[str, np.ndarray] = {}
     for key in ("left", "step", "right"):
         line_fits[key] = np.polyfit(projected[masks[key], 0], projected[masks[key], 1], 1)
 
-    average_slope = float(np.mean([fit[0] for fit in line_fits.values()]))
-    intercepts = {
-        key: float(np.mean(projected[masks[key], 1] - average_slope * projected[masks[key], 0]))
-        for key in ("left", "step", "right")
-    }
-    left_step_distance = abs(intercepts["step"] - intercepts["left"]) / np.sqrt(1.0 + average_slope**2)
-    right_step_distance = abs(intercepts["step"] - intercepts["right"]) / np.sqrt(1.0 + average_slope**2)
-    measured_step_height = float((left_step_distance + right_step_distance) / 2.0)
+    sample_x = float(np.mean(projected[masks["step"], 0]))
+    z_left = np.polyval(line_fits["left"], sample_x)
+    z_step = np.polyval(line_fits["step"], sample_x)
+    z_right = np.polyval(line_fits["right"], sample_x)
+    left_step_distance = abs(z_step - z_left)
+    right_step_distance = abs(z_step - z_right)
+    measured_step_height = float(abs(z_step - 0.5 * (z_left + z_right)))
     return (
-        line_direction,
+        profile_direction_xy,
         projected,
         {
             "left_fit": line_fits["left"],
@@ -422,6 +429,11 @@ def run_light_plane_calibration(args: argparse.Namespace) -> dict[str, Any]:
         )
 
     reference_for_lasers = [reference_images[0] for _ in laser_images] if len(reference_images) == 1 else reference_images
+    world_reference_path = reference_for_lasers[0]
+    world_reference_pose = reference_results_by_path[world_reference_path]
+    world_rvec = np.asarray(world_reference_pose.rotation_vector, dtype=np.float64).reshape(3, 1)
+    world_tvec = np.asarray(world_reference_pose.translation_vector, dtype=np.float64).reshape(3, 1)
+    world_rotation_matrix, _ = cv2.Rodrigues(world_rvec)
 
     plane_points: list[np.ndarray] = []
     plane_rows: list[list[Any]] = []
@@ -493,10 +505,10 @@ def run_light_plane_calibration(args: argparse.Namespace) -> dict[str, Any]:
             camera_matrix=camera_matrix,
             dist_coeffs=dist_coeffs,
         )
-        validation_line_direction, validation_projection, validation_arrays = compute_step_height(
-            points_3d=validation_points,
+        validation_world_points = camera_to_world(validation_points, world_rotation_matrix, world_tvec)
+        validation_line_direction, validation_projection, validation_arrays = compute_step_height_world(
+            points_3d_world=validation_world_points,
             image_points=validation_extraction.centers,
-            plane_normal=light_plane_normal,
             segments=validation_segments,
         )
 
@@ -548,6 +560,9 @@ def run_light_plane_calibration(args: argparse.Namespace) -> dict[str, Any]:
         validation_points=np.asarray([] if validation_points is None else validation_points, dtype=np.float64),
         validation_projection=np.asarray([] if validation_projection is None else validation_projection, dtype=np.float64),
         validation_line_direction=np.asarray([] if validation_line_direction is None else validation_line_direction, dtype=np.float64),
+        world_reference_name=np.asarray([world_reference_pose.image_name]),
+        world_reference_rvec=world_rvec.astype(np.float64),
+        world_reference_tvec=world_tvec.astype(np.float64),
         validation_measured_step_mm=np.asarray(
             [] if validation_payload is None else [validation_payload.measured_step_height_mm],
             dtype=np.float64,
@@ -562,6 +577,7 @@ def run_light_plane_calibration(args: argparse.Namespace) -> dict[str, Any]:
         "generated_at": datetime.now().isoformat(timespec="seconds"),
         "config_path": str(config_path),
         "camera_calibration_path": str(camera_calibration_path),
+        "world_reference_image": world_reference_pose.image_name,
         "reference_poses": [asdict(reference_results_by_path[path]) for path in reference_results_by_path],
         "laser_inputs": [asdict(item) for item in laser_inputs],
         "light_plane": {
@@ -615,6 +631,7 @@ def run_light_plane_calibration(args: argparse.Namespace) -> dict[str, Any]:
         f"- Camera calibration: {camera_calibration_path}",
         f"- Reference images: {', '.join(path.name for path in reference_results_by_path)}",
         f"- Laser images: {', '.join(item.laser_image_name for item in laser_inputs)}",
+        f"- World reference image: {world_reference_pose.image_name}",
         f"- Validation enabled: {validation_payload is not None}",
         "",
         "## Light Plane Equation",
@@ -657,6 +674,7 @@ def run_light_plane_calibration(args: argparse.Namespace) -> dict[str, Any]:
             "- Board pose for each laser image is solved from the paired reference image via circle-grid detection and solvePnP.",
             "- Laser 3D points are obtained by intersecting undistorted camera rays with the paired board plane.",
             "- Validation 3D points are obtained by intersecting undistorted camera rays with the fitted light plane.",
+            "- Step height is evaluated in the world frame defined by the first paired reference image, with height taken along world Z.",
         ]
     )
     (output_dir / "summary.md").write_text("\n".join(summary_lines) + "\n", encoding="utf-8")

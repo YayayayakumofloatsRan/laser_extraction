@@ -9,22 +9,22 @@
   ],
   "point_count": 5496,
   "nominal_step_height_mm": 1.8,
-  "measured_step_height_mm": 2.122163814744825,
-  "absolute_error_mm": 0.3221638147448249,
-  "absolute_error_um": 322.1638147448249,
-  "left_step_distance_mm": 2.1233229346012594,
-  "right_step_distance_mm": 2.121004694888391,
+  "measured_step_height_mm": 1.7959162030074167,
+  "absolute_error_mm": 0.004083796992583322,
+  "absolute_error_um": 4.083796992583322,
+  "left_step_distance_mm": 1.8135066061032565,
+  "right_step_distance_mm": 1.7783257999115767,
   "left_fit_coeffs": [
-    -0.0018676505824094458,
-    -0.01009667252245746
+    -0.04410054652577746,
+    1.0117761070353217
   ],
   "step_fit_coeffs": [
-    -0.004421280548903351,
-    -2.104495438401842
+    -0.04797059285375101,
+    -0.7872952393086333
   ],
   "right_fit_coeffs": [
-    0.006777281733875231,
-    -0.07906648080396428
+    -0.03707513040772403,
+    0.9503905224025561
   ],
   "overlay_path": "D:\\laser_extraction\\output\\light_plane_calibration\\overlays\\Pic_20260320142001841_validation_overlay.png"
 }
