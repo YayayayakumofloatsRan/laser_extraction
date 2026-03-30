@@ -35,6 +35,11 @@
 - Absolute error: 0.000053272 mm (0.053 um)
 - Left-step distance: 1.753222887 mm
 - Right-step distance: 1.846670569 mm
+- Left edge absolute error: 46.777 um
+- Right edge absolute error: 46.671 um
+- Left/right consistency gap: 93.448 um
+- Conservative absolute error: 46.777 um
+- Warning: the averaged step-height error is being reduced by left/right cancellation, so it is not a trustworthy claim of true system accuracy.
 
 ## Notes
 - Board pose for each laser image is solved from the paired reference image via circle-grid detection and solvePnP.

@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-30T19:04:51",
+  "generated_at": "2026-03-30T19:20:12",
   "config_path": "D:\\laser_extraction\\python_workspace\\light_plane_calibration_config.json",
   "camera_calibration_path": "D:\\laser_extraction\\output\\camera_calibration\\calibration_result.npz",
   "stripe_extraction_params": {
@@ -35,7 +35,7 @@
         0.872403906992514
       ],
       "plane_offset": -86.56032730305976,
-      "overlay_path": "D:\\laser_extraction\\output\\light_plane_calibration\\overlays\\Cam_pos15_reference.png"
+      "overlay_path": null
     },
     {
       "image_name": "Cam_pos17.png",
@@ -57,7 +57,7 @@
         0.8708041453905979
       ],
       "plane_offset": -85.58511962020916,
-      "overlay_path": "D:\\laser_extraction\\output\\light_plane_calibration\\overlays\\Cam_pos17_reference.png"
+      "overlay_path": null
     }
   ],
   "laser_inputs": [
@@ -72,7 +72,7 @@
         350
       ],
       "point_count": 2000,
-      "overlay_path": "D:\\laser_extraction\\output\\light_plane_calibration\\overlays\\Laser1_laser_overlay.png"
+      "overlay_path": null
     },
     {
       "laser_image_name": "Laser2.png",
@@ -85,7 +85,7 @@
         350
       ],
       "point_count": 2000,
-      "overlay_path": "D:\\laser_extraction\\output\\light_plane_calibration\\overlays\\Laser2_laser_overlay.png"
+      "overlay_path": null
     }
   ],
   "light_plane": {

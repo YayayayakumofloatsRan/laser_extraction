@@ -64,6 +64,10 @@ class ValidationResult:
     absolute_error_um: float
     left_step_distance_mm: float
     right_step_distance_mm: float
+    left_absolute_error_um: float
+    right_absolute_error_um: float
+    edge_consistency_um: float
+    conservative_absolute_error_um: float
     left_fit_coeffs: list[float]
     step_fit_coeffs: list[float]
     right_fit_coeffs: list[float]
@@ -515,6 +519,12 @@ def run_light_plane_calibration(args: argparse.Namespace) -> dict[str, Any]:
         measured_step_height = float(validation_arrays["measured_step_height_mm"][0])
         nominal_step_height = float(config["nominal_step_height_mm"])
         absolute_error = abs(measured_step_height - nominal_step_height)
+        left_step_distance = float(validation_arrays["left_step_distance_mm"][0])
+        right_step_distance = float(validation_arrays["right_step_distance_mm"][0])
+        left_absolute_error_um = mm_to_um(abs(left_step_distance - nominal_step_height))
+        right_absolute_error_um = mm_to_um(abs(right_step_distance - nominal_step_height))
+        edge_consistency_um = mm_to_um(abs(left_step_distance - right_step_distance))
+        conservative_absolute_error_um = max(left_absolute_error_um, right_absolute_error_um)
 
         validation_overlay_path: Path | None = None
         if args.save_overlays:
@@ -536,8 +546,12 @@ def run_light_plane_calibration(args: argparse.Namespace) -> dict[str, Any]:
             measured_step_height_mm=measured_step_height,
             absolute_error_mm=float(absolute_error),
             absolute_error_um=mm_to_um(float(absolute_error)),
-            left_step_distance_mm=float(validation_arrays["left_step_distance_mm"][0]),
-            right_step_distance_mm=float(validation_arrays["right_step_distance_mm"][0]),
+            left_step_distance_mm=left_step_distance,
+            right_step_distance_mm=right_step_distance,
+            left_absolute_error_um=float(left_absolute_error_um),
+            right_absolute_error_um=float(right_absolute_error_um),
+            edge_consistency_um=float(edge_consistency_um),
+            conservative_absolute_error_um=float(conservative_absolute_error_um),
             left_fit_coeffs=[float(value) for value in validation_arrays["left_fit"]],
             step_fit_coeffs=[float(value) for value in validation_arrays["step_fit"]],
             right_fit_coeffs=[float(value) for value in validation_arrays["right_fit"]],
@@ -569,6 +583,22 @@ def run_light_plane_calibration(args: argparse.Namespace) -> dict[str, Any]:
         ),
         validation_nominal_step_mm=np.asarray(
             [] if validation_payload is None else [validation_payload.nominal_step_height_mm],
+            dtype=np.float64,
+        ),
+        validation_left_step_mm=np.asarray(
+            [] if validation_payload is None else [validation_payload.left_step_distance_mm],
+            dtype=np.float64,
+        ),
+        validation_right_step_mm=np.asarray(
+            [] if validation_payload is None else [validation_payload.right_step_distance_mm],
+            dtype=np.float64,
+        ),
+        validation_edge_consistency_um=np.asarray(
+            [] if validation_payload is None else [validation_payload.edge_consistency_um],
+            dtype=np.float64,
+        ),
+        validation_conservative_error_um=np.asarray(
+            [] if validation_payload is None else [validation_payload.conservative_absolute_error_um],
             dtype=np.float64,
         ),
     )
@@ -669,8 +699,18 @@ def run_light_plane_calibration(args: argparse.Namespace) -> dict[str, Any]:
                 f"- Absolute error: {validation_payload.absolute_error_mm:.9f} mm ({validation_payload.absolute_error_um:.3f} um)",
                 f"- Left-step distance: {validation_payload.left_step_distance_mm:.9f} mm",
                 f"- Right-step distance: {validation_payload.right_step_distance_mm:.9f} mm",
+                f"- Left edge absolute error: {validation_payload.left_absolute_error_um:.3f} um",
+                f"- Right edge absolute error: {validation_payload.right_absolute_error_um:.3f} um",
+                f"- Left/right consistency gap: {validation_payload.edge_consistency_um:.3f} um",
+                f"- Conservative absolute error: {validation_payload.conservative_absolute_error_um:.3f} um",
             ]
         )
+        if validation_payload.edge_consistency_um > 10.0:
+            summary_lines.extend(
+                [
+                    "- Warning: the averaged step-height error is being reduced by left/right cancellation, so it is not a trustworthy claim of true system accuracy.",
+                ]
+            )
     summary_lines.extend(
         [
             "",
@@ -719,6 +759,18 @@ def main() -> None:
             f"{validation.measured_step_height_mm:.9f} mm, "
             f"error={validation.absolute_error_mm:.9f} mm ({validation.absolute_error_um:.3f} um)"
         )
+        print(
+            "Validation consistency: "
+            f"left_error={validation.left_absolute_error_um:.3f} um, "
+            f"right_error={validation.right_absolute_error_um:.3f} um, "
+            f"edge_gap={validation.edge_consistency_um:.3f} um, "
+            f"conservative_error={validation.conservative_absolute_error_um:.3f} um"
+        )
+        if validation.edge_consistency_um > 10.0:
+            print(
+                "WARNING: averaged step-height error is being reduced by left/right cancellation; "
+                "do not treat it as true system accuracy."
+            )
 
 
 if __name__ == "__main__":

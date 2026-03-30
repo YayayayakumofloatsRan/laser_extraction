@@ -12,9 +12,11 @@
 - Switched the default stripe center extraction from the earlier local `peak_window_centroid` approximation to the lecture-aligned `global_centroid` workflow.
 - Current default stripe extraction parameters are `filter_mode=median+gaussian`, `threshold_ratio=0.25`, `extraction_method=global_centroid`.
 - Latest light-plane baseline: fitted plane RMSE `0.051787291 mm` (`51.787 um`) from `4000` reconstructed board points.
-- Latest step validation baseline: measured `1.799946728 mm` versus nominal `1.800000000 mm`, absolute error `0.000053272 mm` (`0.053 um`).
+- Audited the step-height metric and found the `0.053 um` averaged error is not trustworthy by itself because the left/right edge results are `1.753223 mm` and `1.846671 mm`, with a `93.448 um` consistency gap.
+- Current reporting now keeps the averaged error but also exposes left-edge error, right-edge error, left/right consistency gap, and a conservative error metric so visually good cancellation cannot be mistaken for true device accuracy.
 
 ## Current Focus
 
 - Preserve the now-correct pairing, world-frame validation logic, and lecture-aligned gray-centroid extraction settings.
+- Replace single-number validation claims with consistency-aware metrics and then revisit the step-height fitting procedure against the lecture.
 - Keep validating physical board metadata before locking the final production scale.

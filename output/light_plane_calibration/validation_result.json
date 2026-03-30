@@ -14,6 +14,10 @@
   "absolute_error_um": 0.05327212641215162,
   "left_step_distance_mm": 1.7532228866617139,
   "right_step_distance_mm": 1.8466705690854621,
+  "left_absolute_error_um": 46.777113338286156,
+  "right_absolute_error_um": 46.67056908546208,
+  "edge_consistency_um": 93.44768242374823,
+  "conservative_absolute_error_um": 46.777113338286156,
   "left_fit_coeffs": [
     -0.04619217469407185,
     0.9468371501786673
@@ -26,5 +30,5 @@
     -0.045129526145115395,
     1.0363203796226075
   ],
-  "overlay_path": "D:\\laser_extraction\\output\\light_plane_calibration\\overlays\\Pic_20260320142001841_validation_overlay.png"
+  "overlay_path": null
 }
