@@ -1,0 +1,650 @@
+{
+  "generated_at": "2026-03-30T16:59:04",
+  "images_dir": "D:\\laser_extraction\\Campos-8\\Campos-8",
+  "output_dir": "D:\\laser_extraction\\output\\camera_calibration",
+  "save_overlays": true,
+  "max_images": null,
+  "image_size": [
+    5496,
+    3672
+  ],
+  "calibration_flags": 129,
+  "overall_rms_reprojection_error_px": 2.442742492193611,
+  "camera_matrix": [
+    [
+      22244.93958295535,
+      0.0,
+      2611.6108209466065
+    ],
+    [
+      0.0,
+      22104.946141983222,
+      1919.0768322127155
+    ],
+    [
+      0.0,
+      0.0,
+      1.0
+    ]
+  ],
+  "dist_coeffs": [
+    -0.20594597199061498,
+    -1.378116583188213,
+    -0.0034414694324743475,
+    0.0010092676339359412,
+    0.0
+  ],
+  "board_spec": {
+    "pattern_cols": 9,
+    "pattern_rows": 9,
+    "spacing_mm": 1.0,
+    "circle_diameter_mm": 0.5,
+    "board_outer_width_mm": 15.0,
+    "board_outer_height_mm": 15.0,
+    "active_pattern_width_mm": 10.0,
+    "active_pattern_height_mm": 10.0,
+    "board_precision_um": 0.5
+  },
+  "detection_records": [
+    {
+      "image_name": "Cam_pos1.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos1.png",
+      "found": true,
+      "point_count": 81,
+      "overlay_path": "D:\\laser_extraction\\output\\camera_calibration\\detections\\Cam_pos1.png",
+      "error_message": null
+    },
+    {
+      "image_name": "Cam_pos10.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos10.png",
+      "found": true,
+      "point_count": 81,
+      "overlay_path": "D:\\laser_extraction\\output\\camera_calibration\\detections\\Cam_pos10.png",
+      "error_message": null
+    },
+    {
+      "image_name": "Cam_pos11.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos11.png",
+      "found": true,
+      "point_count": 81,
+      "overlay_path": "D:\\laser_extraction\\output\\camera_calibration\\detections\\Cam_pos11.png",
+      "error_message": null
+    },
+    {
+      "image_name": "Cam_pos12.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos12.png",
+      "found": true,
+      "point_count": 81,
+      "overlay_path": "D:\\laser_extraction\\output\\camera_calibration\\detections\\Cam_pos12.png",
+      "error_message": null
+    },
+    {
+      "image_name": "Cam_pos13.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos13.png",
+      "found": true,
+      "point_count": 81,
+      "overlay_path": "D:\\laser_extraction\\output\\camera_calibration\\detections\\Cam_pos13.png",
+      "error_message": null
+    },
+    {
+      "image_name": "Cam_pos14.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos14.png",
+      "found": true,
+      "point_count": 81,
+      "overlay_path": "D:\\laser_extraction\\output\\camera_calibration\\detections\\Cam_pos14.png",
+      "error_message": null
+    },
+    {
+      "image_name": "Cam_pos15.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos15.png",
+      "found": true,
+      "point_count": 81,
+      "overlay_path": "D:\\laser_extraction\\output\\camera_calibration\\detections\\Cam_pos15.png",
+      "error_message": null
+    },
+    {
+      "image_name": "Cam_pos16.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos16.png",
+      "found": true,
+      "point_count": 81,
+      "overlay_path": "D:\\laser_extraction\\output\\camera_calibration\\detections\\Cam_pos16.png",
+      "error_message": null
+    },
+    {
+      "image_name": "Cam_pos17.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos17.png",
+      "found": true,
+      "point_count": 81,
+      "overlay_path": "D:\\laser_extraction\\output\\camera_calibration\\detections\\Cam_pos17.png",
+      "error_message": null
+    },
+    {
+      "image_name": "Cam_pos18.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos18.png",
+      "found": true,
+      "point_count": 81,
+      "overlay_path": "D:\\laser_extraction\\output\\camera_calibration\\detections\\Cam_pos18.png",
+      "error_message": null
+    },
+    {
+      "image_name": "Cam_pos19.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos19.png",
+      "found": true,
+      "point_count": 81,
+      "overlay_path": "D:\\laser_extraction\\output\\camera_calibration\\detections\\Cam_pos19.png",
+      "error_message": null
+    },
+    {
+      "image_name": "Cam_pos2.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos2.png",
+      "found": true,
+      "point_count": 81,
+      "overlay_path": "D:\\laser_extraction\\output\\camera_calibration\\detections\\Cam_pos2.png",
+      "error_message": null
+    },
+    {
+      "image_name": "Cam_pos20.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos20.png",
+      "found": true,
+      "point_count": 81,
+      "overlay_path": "D:\\laser_extraction\\output\\camera_calibration\\detections\\Cam_pos20.png",
+      "error_message": null
+    },
+    {
+      "image_name": "Cam_pos21.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos21.png",
+      "found": true,
+      "point_count": 81,
+      "overlay_path": "D:\\laser_extraction\\output\\camera_calibration\\detections\\Cam_pos21.png",
+      "error_message": null
+    },
+    {
+      "image_name": "Cam_pos22.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos22.png",
+      "found": true,
+      "point_count": 81,
+      "overlay_path": "D:\\laser_extraction\\output\\camera_calibration\\detections\\Cam_pos22.png",
+      "error_message": null
+    },
+    {
+      "image_name": "Cam_pos23.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos23.png",
+      "found": true,
+      "point_count": 81,
+      "overlay_path": "D:\\laser_extraction\\output\\camera_calibration\\detections\\Cam_pos23.png",
+      "error_message": null
+    },
+    {
+      "image_name": "Cam_pos24.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos24.png",
+      "found": true,
+      "point_count": 81,
+      "overlay_path": "D:\\laser_extraction\\output\\camera_calibration\\detections\\Cam_pos24.png",
+      "error_message": null
+    },
+    {
+      "image_name": "Cam_pos25.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos25.png",
+      "found": true,
+      "point_count": 81,
+      "overlay_path": "D:\\laser_extraction\\output\\camera_calibration\\detections\\Cam_pos25.png",
+      "error_message": null
+    },
+    {
+      "image_name": "Cam_pos26.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos26.png",
+      "found": true,
+      "point_count": 81,
+      "overlay_path": "D:\\laser_extraction\\output\\camera_calibration\\detections\\Cam_pos26.png",
+      "error_message": null
+    },
+    {
+      "image_name": "Cam_pos3.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos3.png",
+      "found": true,
+      "point_count": 81,
+      "overlay_path": "D:\\laser_extraction\\output\\camera_calibration\\detections\\Cam_pos3.png",
+      "error_message": null
+    },
+    {
+      "image_name": "Cam_pos4.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos4.png",
+      "found": true,
+      "point_count": 81,
+      "overlay_path": "D:\\laser_extraction\\output\\camera_calibration\\detections\\Cam_pos4.png",
+      "error_message": null
+    },
+    {
+      "image_name": "Cam_pos5.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos5.png",
+      "found": true,
+      "point_count": 81,
+      "overlay_path": "D:\\laser_extraction\\output\\camera_calibration\\detections\\Cam_pos5.png",
+      "error_message": null
+    },
+    {
+      "image_name": "Cam_pos6.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos6.png",
+      "found": true,
+      "point_count": 81,
+      "overlay_path": "D:\\laser_extraction\\output\\camera_calibration\\detections\\Cam_pos6.png",
+      "error_message": null
+    },
+    {
+      "image_name": "Cam_pos7.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos7.png",
+      "found": true,
+      "point_count": 81,
+      "overlay_path": "D:\\laser_extraction\\output\\camera_calibration\\detections\\Cam_pos7.png",
+      "error_message": null
+    },
+    {
+      "image_name": "Cam_pos8.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos8.png",
+      "found": true,
+      "point_count": 81,
+      "overlay_path": "D:\\laser_extraction\\output\\camera_calibration\\detections\\Cam_pos8.png",
+      "error_message": null
+    },
+    {
+      "image_name": "Cam_pos9.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos9.png",
+      "found": true,
+      "point_count": 81,
+      "overlay_path": "D:\\laser_extraction\\output\\camera_calibration\\detections\\Cam_pos9.png",
+      "error_message": null
+    }
+  ],
+  "views": [
+    {
+      "image_name": "Cam_pos5.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos5.png",
+      "rotation_vector": [
+        0.11849962546941299,
+        -0.5143235404968334,
+        2.1874458962038497
+      ],
+      "translation_vector": [
+        1.5588232618011413,
+        -1.6648053301027175,
+        98.23670801949554
+      ],
+      "reprojection_rmse_px": 2.881512592203957
+    },
+    {
+      "image_name": "Cam_pos13.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos13.png",
+      "rotation_vector": [
+        -0.1777945754338209,
+        -0.7515844560630365,
+        2.953777758768735
+      ],
+      "translation_vector": [
+        6.539842892161854,
+        0.46050289183961524,
+        99.45646047098138
+      ],
+      "reprojection_rmse_px": 2.774356999672602
+    },
+    {
+      "image_name": "Cam_pos12.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos12.png",
+      "rotation_vector": [
+        0.3785354803166724,
+        -0.4141214245507075,
+        1.5495062054262012
+      ],
+      "translation_vector": [
+        4.3992160411774135,
+        -6.97989785733872,
+        95.85613291188255
+      ],
+      "reprojection_rmse_px": 2.762181553257253
+    },
+    {
+      "image_name": "Cam_pos16.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos16.png",
+      "rotation_vector": [
+        -0.1911729170141205,
+        -0.7597094434157476,
+        2.9769216718132445
+      ],
+      "translation_vector": [
+        -1.6929732785580314,
+        6.341753142853972,
+        102.43820022966453
+      ],
+      "reprojection_rmse_px": 2.746361315327839
+    },
+    {
+      "image_name": "Cam_pos15.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos15.png",
+      "rotation_vector": [
+        -0.18254561286707952,
+        -0.7517708330685896,
+        2.9608974224515996
+      ],
+      "translation_vector": [
+        -1.0756338388111626,
+        3.420378739959238,
+        100.89539763031925
+      ],
+      "reprojection_rmse_px": 2.731154924330159
+    },
+    {
+      "image_name": "Cam_pos18.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos18.png",
+      "rotation_vector": [
+        0.376134347261263,
+        -0.4162713555296142,
+        1.5608481058826076
+      ],
+      "translation_vector": [
+        -1.5421889502903903,
+        -6.99689958499927,
+        95.71796850614086
+      ],
+      "reprojection_rmse_px": 2.6813722240053433
+    },
+    {
+      "image_name": "Cam_pos20.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos20.png",
+      "rotation_vector": [
+        0.37978585836891454,
+        -0.4106433530203983,
+        1.542155411547874
+      ],
+      "translation_vector": [
+        11.34387882460228,
+        -7.354426716946293,
+        95.89344247748947
+      ],
+      "reprojection_rmse_px": 2.65396886947027
+    },
+    {
+      "image_name": "Cam_pos1.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos1.png",
+      "rotation_vector": [
+        0.37432389130847477,
+        -0.41633976179001214,
+        1.5641885420806794
+      ],
+      "translation_vector": [
+        4.418607828767246,
+        -4.257089589683417,
+        97.3384117032229
+      ],
+      "reprojection_rmse_px": 2.5381342727834255
+    },
+    {
+      "image_name": "Cam_pos8.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos8.png",
+      "rotation_vector": [
+        0.13589297893247113,
+        -0.49968126530198836,
+        2.138922110375342
+      ],
+      "translation_vector": [
+        0.9355256234509365,
+        -2.8444944516638495,
+        97.63134606925982
+      ],
+      "reprojection_rmse_px": 2.473223468967588
+    },
+    {
+      "image_name": "Cam_pos21.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos21.png",
+      "rotation_vector": [
+        0.377800052995965,
+        -0.4117457540400283,
+        1.5483529641119953
+      ],
+      "translation_vector": [
+        9.933868279584138,
+        -4.654727308121764,
+        97.37166324297479
+      ],
+      "reprojection_rmse_px": 2.4550948024092523
+    },
+    {
+      "image_name": "Cam_pos24.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos24.png",
+      "rotation_vector": [
+        -0.01069087179746417,
+        -0.7735124550147863,
+        3.000832454941375
+      ],
+      "translation_vector": [
+        -1.6744872398006114,
+        6.4832566295975935,
+        103.13555832902408
+      ],
+      "reprojection_rmse_px": 2.4484290530732817
+    },
+    {
+      "image_name": "Cam_pos7.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos7.png",
+      "rotation_vector": [
+        0.14003724582846555,
+        -0.4978167780987278,
+        2.1397791027624877
+      ],
+      "translation_vector": [
+        11.199475381698589,
+        -2.368674304596565,
+        98.17796493737531
+      ],
+      "reprojection_rmse_px": 2.4435742194623638
+    },
+    {
+      "image_name": "Cam_pos11.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos11.png",
+      "rotation_vector": [
+        0.2920560603420398,
+        -0.47789752761823207,
+        1.4523779128310064
+      ],
+      "translation_vector": [
+        11.040097148015478,
+        -7.045960731712698,
+        95.5211908631925
+      ],
+      "reprojection_rmse_px": 2.4385461063443006
+    },
+    {
+      "image_name": "Cam_pos9.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos9.png",
+      "rotation_vector": [
+        0.28593314572335554,
+        -0.4815743728185365,
+        1.4641150381049925
+      ],
+      "translation_vector": [
+        11.795575965471471,
+        -0.6534511504363612,
+        99.19020910727632
+      ],
+      "reprojection_rmse_px": 2.430931238136699
+    },
+    {
+      "image_name": "Cam_pos10.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos10.png",
+      "rotation_vector": [
+        0.2874384630955821,
+        -0.47953167086733317,
+        1.4521667586791742
+      ],
+      "translation_vector": [
+        11.727643575303372,
+        -2.1008614744211,
+        98.33337155257175
+      ],
+      "reprojection_rmse_px": 2.421573298434573
+    },
+    {
+      "image_name": "Cam_pos17.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos17.png",
+      "rotation_vector": [
+        0.28922609763213025,
+        -0.485786100152465,
+        1.4760748537291752
+      ],
+      "translation_vector": [
+        5.651549596141172,
+        -1.0574334351218482,
+        98.58333730311226
+      ],
+      "reprojection_rmse_px": 2.346219345931826
+    },
+    {
+      "image_name": "Cam_pos23.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos23.png",
+      "rotation_vector": [
+        0.3778426044521191,
+        -0.4119074835878071,
+        1.5396904949758914
+      ],
+      "translation_vector": [
+        6.185368843229298,
+        0.3735367250636389,
+        100.00596531773093
+      ],
+      "reprojection_rmse_px": 2.3287657279116987
+    },
+    {
+      "image_name": "Cam_pos3.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos3.png",
+      "rotation_vector": [
+        0.2064409516255555,
+        -0.6246154287338531,
+        2.4034404384488157
+      ],
+      "translation_vector": [
+        2.4259242548578217,
+        -1.3196193535111238,
+        98.78966161498768
+      ],
+      "reprojection_rmse_px": 2.296516730142143
+    },
+    {
+      "image_name": "Cam_pos19.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos19.png",
+      "rotation_vector": [
+        0.18437812503340953,
+        -0.6357081790499113,
+        2.4415180501955085
+      ],
+      "translation_vector": [
+        1.7969401112443038,
+        2.3832561076031165,
+        101.00319135164395
+      ],
+      "reprojection_rmse_px": 2.2680439658600324
+    },
+    {
+      "image_name": "Cam_pos4.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos4.png",
+      "rotation_vector": [
+        0.2044731416500435,
+        -0.6247402501460066,
+        2.405186888218147
+      ],
+      "translation_vector": [
+        11.002582103324292,
+        -1.4990507447406396,
+        98.97471095252239
+      ],
+      "reprojection_rmse_px": 2.2354527882188298
+    },
+    {
+      "image_name": "Cam_pos2.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos2.png",
+      "rotation_vector": [
+        0.28869544812911674,
+        -0.5130103437370441,
+        1.5162995394251022
+      ],
+      "translation_vector": [
+        4.523790683836104,
+        -4.0070707061564965,
+        96.95341830784022
+      ],
+      "reprojection_rmse_px": 2.203537709736187
+    },
+    {
+      "image_name": "Cam_pos14.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos14.png",
+      "rotation_vector": [
+        -0.16831820856845084,
+        -0.7504017619765461,
+        2.944293246779548
+      ],
+      "translation_vector": [
+        -1.060197946290071,
+        0.241117092082504,
+        99.11253711383976
+      ],
+      "reprojection_rmse_px": 2.1900790313274645
+    },
+    {
+      "image_name": "Cam_pos26.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos26.png",
+      "rotation_vector": [
+        0.16776931335589923,
+        -0.6479467530879914,
+        2.492464269740257
+      ],
+      "translation_vector": [
+        11.633141681939131,
+        2.970689972824815,
+        101.61927074188841
+      ],
+      "reprojection_rmse_px": 2.1894275876666778
+    },
+    {
+      "image_name": "Cam_pos25.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos25.png",
+      "rotation_vector": [
+        0.37774282373049767,
+        -0.41384826200569286,
+        1.5512588545917931
+      ],
+      "translation_vector": [
+        -2.520442619150847,
+        -2.326176179805629,
+        98.2934785633477
+      ],
+      "reprojection_rmse_px": 2.1444958319665335
+    },
+    {
+      "image_name": "Cam_pos6.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos6.png",
+      "rotation_vector": [
+        0.12923300742552218,
+        -0.5034678240098069,
+        2.1616985871650005
+      ],
+      "translation_vector": [
+        11.508847320000443,
+        0.9915866782997949,
+        100.11486406141965
+      ],
+      "reprojection_rmse_px": 2.096177506884748
+    },
+    {
+      "image_name": "Cam_pos22.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos22.png",
+      "rotation_vector": [
+        0.3749527722288921,
+        -0.41226147547757325,
+        1.5562790928579164
+      ],
+      "translation_vector": [
+        11.771177686502575,
+        -0.1096509100211298,
+        99.89527874698638
+      ],
+      "reprojection_rmse_px": 2.0550048625826696
+    }
+  ]
+}

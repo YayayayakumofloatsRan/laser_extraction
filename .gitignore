@@ -2,3 +2,4 @@ __pycache__/
 *.py[cod]
 tmp/
 .ipynb_checkpoints/
+output/camera_calibration/detections/
