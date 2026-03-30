@@ -1,7 +1,18 @@
 {
-  "generated_at": "2026-03-30T18:45:22",
+  "generated_at": "2026-03-30T19:04:51",
   "config_path": "D:\\laser_extraction\\python_workspace\\light_plane_calibration_config.json",
   "camera_calibration_path": "D:\\laser_extraction\\output\\camera_calibration\\calibration_result.npz",
+  "stripe_extraction_params": {
+    "gray_method": "opencv",
+    "blur_kernel": 11,
+    "threshold_ratio": 0.25,
+    "filter_mode": "median+gaussian",
+    "extraction_method": "global_centroid",
+    "background_kernel": 61,
+    "peak_window_half_height": 25,
+    "smooth_kernel_size": 11,
+    "smooth_max_deviation": 8.0
+  },
   "world_reference_image": "Cam_pos15.png",
   "reference_poses": [
     {
@@ -79,22 +90,22 @@
   ],
   "light_plane": {
     "equation": {
-      "A": -0.06782626372657695,
-      "B": 0.8737368493000566,
-      "C": 0.48164667145543844,
-      "D": -45.39766642025697
+      "A": 0.0669377904857217,
+      "B": -0.8758799105534323,
+      "C": -0.4778636986566371,
+      "D": 45.02249662174924
     },
     "metrics_mm": {
-      "mean_abs_mm": 0.04455540098002342,
-      "rmse_mm": 0.05206262386457898,
-      "std_mm": 0.05206262386457898,
-      "max_abs_mm": 0.1491200441692655
+      "mean_abs_mm": 0.04431002335429919,
+      "rmse_mm": 0.0517872911037338,
+      "std_mm": 0.0517872911037338,
+      "max_abs_mm": 0.1409745529353259
     },
     "metrics_um": {
-      "mean_abs_um": 44.55540098002342,
-      "rmse_um": 52.06262386457898,
-      "std_um": 52.06262386457898,
-      "max_abs_um": 149.1200441692655
+      "mean_abs_um": 44.31002335429919,
+      "rmse_um": 51.7872911037338,
+      "std_um": 51.7872911037338,
+      "max_abs_um": 140.9745529353259
     },
     "point_count": 4000
   }

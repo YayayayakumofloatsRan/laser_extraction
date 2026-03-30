@@ -577,6 +577,7 @@ def run_light_plane_calibration(args: argparse.Namespace) -> dict[str, Any]:
         "generated_at": datetime.now().isoformat(timespec="seconds"),
         "config_path": str(config_path),
         "camera_calibration_path": str(camera_calibration_path),
+        "stripe_extraction_params": to_jsonable(stripe_params),
         "world_reference_image": world_reference_pose.image_name,
         "reference_poses": [asdict(reference_results_by_path[path]) for path in reference_results_by_path],
         "laser_inputs": [asdict(item) for item in laser_inputs],
@@ -632,6 +633,9 @@ def run_light_plane_calibration(args: argparse.Namespace) -> dict[str, Any]:
         f"- Reference images: {', '.join(path.name for path in reference_results_by_path)}",
         f"- Laser images: {', '.join(item.laser_image_name for item in laser_inputs)}",
         f"- World reference image: {world_reference_pose.image_name}",
+        f"- Stripe extraction method: {stripe_params.get('extraction_method', 'global_centroid')}",
+        f"- Stripe filter mode: {stripe_params.get('filter_mode', 'gaussian')}",
+        f"- Stripe threshold ratio: {float(stripe_params.get('threshold_ratio', 0.3)):.3f}",
         f"- Validation enabled: {validation_payload is not None}",
         "",
         "## Light Plane Equation",
@@ -675,6 +679,7 @@ def run_light_plane_calibration(args: argparse.Namespace) -> dict[str, Any]:
             "- Laser 3D points are obtained by intersecting undistorted camera rays with the paired board plane.",
             "- Validation 3D points are obtained by intersecting undistorted camera rays with the fitted light plane.",
             "- Step height is evaluated in the world frame defined by the first paired reference image, with height taken along world Z.",
+            "- The default stripe center extraction now uses the lecture-aligned gray centroid workflow instead of the earlier local peak-window approximation.",
         ]
     )
     (output_dir / "summary.md").write_text("\n".join(summary_lines) + "\n", encoding="utf-8")

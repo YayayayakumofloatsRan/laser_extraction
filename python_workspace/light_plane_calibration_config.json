@@ -23,8 +23,9 @@
   "stripe_extraction_params": {
     "gray_method": "opencv",
     "blur_kernel": 11,
+    "threshold_ratio": 0.25,
     "filter_mode": "median+gaussian",
-    "extraction_method": "peak_window_centroid",
+    "extraction_method": "global_centroid",
     "background_kernel": 61,
     "peak_window_half_height": 25,
     "smooth_kernel_size": 11,
