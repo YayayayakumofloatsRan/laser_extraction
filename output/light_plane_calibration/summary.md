@@ -5,22 +5,22 @@
 - Reference images: Cam_pos15.png, Cam_pos17.png
 - Laser images: Laser1.png, Laser2.png
 - World reference image: Cam_pos15.png
-- Stripe extraction method: global_centroid
+- Stripe extraction method: peak_window_centroid
 - Stripe filter mode: median+gaussian
-- Stripe threshold ratio: 0.250
+- Stripe threshold ratio: 0.330
 - Validation enabled: True
 
 ## Light Plane Equation
-- A: 0.066937790
-- B: -0.875879911
-- C: -0.477863699
-- D: 45.022496622
+- A: -0.067731208
+- B: 0.873623739
+- C: 0.481865174
+- D: -45.419123598
 
 ## Plane Fit Metrics
-- Mean: 0.044310023 mm (44.310 um)
-- RMSE: 0.051787291 mm (51.787 um)
-- Std: 0.051787291 mm (51.787 um)
-- Max: 0.140974553 mm (140.975 um)
+- Mean: 0.044782147 mm (44.782 um)
+- RMSE: 0.052347544 mm (52.348 um)
+- Std: 0.052347544 mm (52.348 um)
+- Max: 0.146170048 mm (146.170 um)
 
 ## Laser / Reference Mapping
 - Laser1.png <- Cam_pos15.png, ROI=[1700, 1250, 2000, 350], points=2000
@@ -31,15 +31,14 @@
 - ROI: [0, 1300, 5496, 650]
 - Segments: {'left': (400, 1500), 'step': (2500, 3600), 'right': (4500, 5000)}
 - Nominal height: 1.800000000 mm
-- Measured height: 1.799946728 mm
-- Absolute error: 0.000053272 mm (0.053 um)
-- Left-step distance: 1.753222887 mm
-- Right-step distance: 1.846670569 mm
-- Left edge absolute error: 46.777 um
-- Right edge absolute error: 46.671 um
-- Left/right consistency gap: 93.448 um
-- Conservative absolute error: 46.777 um
-- Warning: the averaged step-height error is being reduced by left/right cancellation, so it is not a trustworthy claim of true system accuracy.
+- Measured height: 1.803690833 mm
+- Absolute error: 0.003690833 mm (3.691 um)
+- Left-step distance: 1.808490477 mm
+- Right-step distance: 1.798891189 mm
+- Left edge absolute error: 8.490 um
+- Right edge absolute error: 1.109 um
+- Left/right consistency gap: 9.599 um
+- Conservative absolute error: 8.490 um
 
 ## Notes
 - Board pose for each laser image is solved from the paired reference image via circle-grid detection and solvePnP.

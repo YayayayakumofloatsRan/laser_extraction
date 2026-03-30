@@ -9,14 +9,13 @@
 - Added `python_workspace/light_plane_calibration.py` and `python_workspace/light_plane_calibration_config.json` for light-plane fitting and step-height validation.
 - Refactored the validation stage to follow the lecture definition of world coordinates: the first paired reference image defines the world frame and height is evaluated along world `Z`.
 - Current default pairing is `Cam_pos15 -> Laser1`, `Cam_pos17 -> Laser2`; the earlier `Cam_pos1/Cam_pos2` assumption caused a false large validation error.
-- Switched the default stripe center extraction from the earlier local `peak_window_centroid` approximation to the lecture-aligned `global_centroid` workflow.
-- Current default stripe extraction parameters are `filter_mode=median+gaussian`, `threshold_ratio=0.25`, `extraction_method=global_centroid`.
-- Latest light-plane baseline: fitted plane RMSE `0.051787291 mm` (`51.787 um`) from `4000` reconstructed board points.
-- Audited the step-height metric and found the `0.053 um` averaged error is not trustworthy by itself because the left/right edge results are `1.753223 mm` and `1.846671 mm`, with a `93.448 um` consistency gap.
-- Current reporting now keeps the averaged error but also exposes left-edge error, right-edge error, left/right consistency gap, and a conservative error metric so visually good cancellation cannot be mistaken for true device accuracy.
+- Audited the false-good `0.053 um` result and confirmed it came from `global_centroid` plus left/right cancellation, not from a credible physical improvement.
+- Restored the lecture-style local gray-centroid workflow and tuned it to `filter_mode=median+gaussian`, `threshold_ratio=0.33`, `peak_window_half_height=27`, `extraction_method=peak_window_centroid`.
+- Latest light-plane baseline: fitted plane RMSE stays at the same tens-of-microns level, while the step validation returns to the lecture case range.
+- Latest step validation baseline: measured `1.803690833 mm` versus nominal `1.800000000 mm`, averaged error `3.691 um`, conservative error `8.490 um`, left/right consistency gap `9.599 um`.
 
 ## Current Focus
 
-- Preserve the now-correct pairing, world-frame validation logic, and lecture-aligned gray-centroid extraction settings.
-- Replace single-number validation claims with consistency-aware metrics and then revisit the step-height fitting procedure against the lecture.
+- Preserve the now-correct pairing, world-frame validation logic, and tuned local gray-centroid extraction settings.
+- Keep checking whether the remaining gap between averaged error and conservative error comes from the lecture's height definition or from still-imperfect stripe center extraction.
 - Keep validating physical board metadata before locking the final production scale.

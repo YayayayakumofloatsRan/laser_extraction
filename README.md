@@ -51,4 +51,4 @@ The default config assumes:
 - `Cam_pos15.png -> Laser1.png`
 - `Cam_pos17.png -> Laser2.png`
 - `Pic_20260320142001841.png` is used for step-height validation
-- lecture-aligned stripe extraction uses `global_centroid` with `median+gaussian` filtering and `threshold_ratio=0.25`
+- lecture-aligned stripe extraction uses `peak_window_centroid` with `median+gaussian` filtering, `threshold_ratio=0.33`, and `peak_window_half_height=27`

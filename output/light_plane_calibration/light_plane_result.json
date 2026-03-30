@@ -1,15 +1,15 @@
 {
-  "generated_at": "2026-03-30T19:20:12",
+  "generated_at": "2026-03-30T19:54:18",
   "config_path": "D:\\laser_extraction\\python_workspace\\light_plane_calibration_config.json",
   "camera_calibration_path": "D:\\laser_extraction\\output\\camera_calibration\\calibration_result.npz",
   "stripe_extraction_params": {
     "gray_method": "opencv",
     "blur_kernel": 11,
-    "threshold_ratio": 0.25,
+    "threshold_ratio": 0.33,
     "filter_mode": "median+gaussian",
-    "extraction_method": "global_centroid",
+    "extraction_method": "peak_window_centroid",
     "background_kernel": 61,
-    "peak_window_half_height": 25,
+    "peak_window_half_height": 27,
     "smooth_kernel_size": 11,
     "smooth_max_deviation": 8.0
   },
@@ -35,7 +35,7 @@
         0.872403906992514
       ],
       "plane_offset": -86.56032730305976,
-      "overlay_path": null
+      "overlay_path": "D:\\laser_extraction\\output\\light_plane_calibration\\overlays\\Cam_pos15_reference.png"
     },
     {
       "image_name": "Cam_pos17.png",
@@ -57,7 +57,7 @@
         0.8708041453905979
       ],
       "plane_offset": -85.58511962020916,
-      "overlay_path": null
+      "overlay_path": "D:\\laser_extraction\\output\\light_plane_calibration\\overlays\\Cam_pos17_reference.png"
     }
   ],
   "laser_inputs": [
@@ -72,7 +72,7 @@
         350
       ],
       "point_count": 2000,
-      "overlay_path": null
+      "overlay_path": "D:\\laser_extraction\\output\\light_plane_calibration\\overlays\\Laser1_laser_overlay.png"
     },
     {
       "laser_image_name": "Laser2.png",
@@ -85,27 +85,27 @@
         350
       ],
       "point_count": 2000,
-      "overlay_path": null
+      "overlay_path": "D:\\laser_extraction\\output\\light_plane_calibration\\overlays\\Laser2_laser_overlay.png"
     }
   ],
   "light_plane": {
     "equation": {
-      "A": 0.0669377904857217,
-      "B": -0.8758799105534323,
-      "C": -0.4778636986566371,
-      "D": 45.02249662174924
+      "A": -0.06773120788783514,
+      "B": 0.8736237393484648,
+      "C": 0.48186517359616304,
+      "D": -45.41912359838115
     },
     "metrics_mm": {
-      "mean_abs_mm": 0.04431002335429919,
-      "rmse_mm": 0.0517872911037338,
-      "std_mm": 0.0517872911037338,
-      "max_abs_mm": 0.1409745529353259
+      "mean_abs_mm": 0.044782147448112306,
+      "rmse_mm": 0.052347543528778094,
+      "std_mm": 0.052347543528778094,
+      "max_abs_mm": 0.14617004769951336
     },
     "metrics_um": {
-      "mean_abs_um": 44.31002335429919,
-      "rmse_um": 51.7872911037338,
-      "std_um": 51.7872911037338,
-      "max_abs_um": 140.9745529353259
+      "mean_abs_um": 44.782147448112305,
+      "rmse_um": 52.3475435287781,
+      "std_um": 52.3475435287781,
+      "max_abs_um": 146.17004769951336
     },
     "point_count": 4000
   }

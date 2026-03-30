@@ -9,26 +9,26 @@
   ],
   "point_count": 5496,
   "nominal_step_height_mm": 1.8,
-  "measured_step_height_mm": 1.799946727873588,
-  "absolute_error_mm": 5.327212641215162e-05,
-  "absolute_error_um": 0.05327212641215162,
-  "left_step_distance_mm": 1.7532228866617139,
-  "right_step_distance_mm": 1.8466705690854621,
-  "left_absolute_error_um": 46.777113338286156,
-  "right_absolute_error_um": 46.67056908546208,
-  "edge_consistency_um": 93.44768242374823,
-  "conservative_absolute_error_um": 46.777113338286156,
+  "measured_step_height_mm": 1.803690833283184,
+  "absolute_error_mm": 0.0036908332831839807,
+  "absolute_error_um": 3.6908332831839807,
+  "left_step_distance_mm": 1.8084904774575095,
+  "right_step_distance_mm": 1.7988911891088586,
+  "left_absolute_error_um": 8.490477457509416,
+  "right_absolute_error_um": 1.108810891141454,
+  "edge_consistency_um": 9.59928834865087,
+  "conservative_absolute_error_um": 8.490477457509416,
   "left_fit_coeffs": [
-    -0.04619217469407185,
-    0.9468371501786673
+    -0.044982611551449864,
+    1.0084713217195431
   ],
   "step_fit_coeffs": [
-    -0.0492790256207936,
-    -0.7948695344737534
+    -0.04781648699875299,
+    -0.7894479627284068
   ],
   "right_fit_coeffs": [
-    -0.045129526145115395,
-    1.0363203796226075
+    -0.040469089472996454,
+    0.9820352619843284
   ],
-  "overlay_path": null
+  "overlay_path": "D:\\laser_extraction\\output\\light_plane_calibration\\overlays\\Pic_20260320142001841_validation_overlay.png"
 }
