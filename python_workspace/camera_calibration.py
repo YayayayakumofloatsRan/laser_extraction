@@ -10,7 +10,11 @@ from pathlib import Path
 from typing import Any
 
 import cv2
+import matplotlib
 import numpy as np
+
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 
 from laser_extraction import read_image_unicode
 
@@ -230,6 +234,142 @@ def numpy_to_python(value: Any) -> Any:
     return value
 
 
+def set_3d_axes_equal(ax: Any, points: np.ndarray) -> None:
+    mins = points.min(axis=0)
+    maxs = points.max(axis=0)
+    center = 0.5 * (mins + maxs)
+    radius = 0.5 * float(np.max(np.maximum(maxs - mins, 1e-6)))
+    ax.set_xlim(center[0] - radius, center[0] + radius)
+    ax.set_ylim(center[1] - radius, center[1] + radius)
+    ax.set_zlim(center[2] - radius, center[2] + radius)
+
+
+def save_reprojection_error_plot(views: list[CalibrationView], output_path: Path) -> None:
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    names = [view.image_name for view in views]
+    errors = np.asarray([view.reprojection_rmse_px for view in views], dtype=np.float64)
+    fig, ax = plt.subplots(figsize=(10, 7))
+    positions = np.arange(len(views))
+    bars = ax.barh(positions, errors, color="steelblue", alpha=0.9)
+    ax.set_yticks(positions)
+    ax.set_yticklabels(names)
+    ax.invert_yaxis()
+    ax.axvline(float(np.mean(errors)), color="crimson", linestyle="--", linewidth=1.5, label="mean")
+    ax.set_xlabel("RMSE (px)")
+    ax.set_title("Per-Image Reprojection Errors")
+    ax.grid(axis="x", linestyle=":", alpha=0.35)
+    ax.legend(loc="lower right")
+    for index, (bar, value) in enumerate(zip(bars, errors)):
+        if index < 5 or index >= len(bars) - 3:
+            ax.text(
+                value + 0.01,
+                bar.get_y() + bar.get_height() * 0.5,
+                f"{value:.3f}",
+                va="center",
+                fontsize=8,
+            )
+    fig.tight_layout()
+    fig.savefig(output_path, dpi=220)
+    plt.close(fig)
+
+
+def save_image_point_coverage_plot(
+    image_points: list[np.ndarray],
+    image_size: tuple[int, int],
+    camera_matrix: np.ndarray,
+    output_path: Path,
+) -> None:
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    all_points = np.vstack([points.reshape(-1, 2) for points in image_points]).astype(np.float64)
+    board_centers = np.asarray([points.reshape(-1, 2).mean(axis=0) for points in image_points], dtype=np.float64)
+
+    fig, ax = plt.subplots(figsize=(10, 7))
+    ax.scatter(all_points[:, 0], all_points[:, 1], s=10, alpha=0.12, color="royalblue", label="circle centers")
+    ax.scatter(board_centers[:, 0], board_centers[:, 1], s=28, color="darkorange", label="per-view center")
+    ax.scatter(
+        [camera_matrix[0, 2]],
+        [camera_matrix[1, 2]],
+        s=80,
+        marker="x",
+        linewidths=2.0,
+        color="crimson",
+        label="principal point",
+    )
+    ax.set_xlim(0, image_size[0])
+    ax.set_ylim(image_size[1], 0)
+    ax.set_aspect("equal", adjustable="box")
+    ax.set_xlabel("u (px)")
+    ax.set_ylabel("v (px)")
+    ax.set_title("Calibration Point Coverage On Sensor")
+    ax.grid(linestyle=":", alpha=0.25)
+    ax.legend(loc="upper right")
+    fig.tight_layout()
+    fig.savefig(output_path, dpi=220)
+    plt.close(fig)
+
+
+def save_camera_pose_plot(views: list[CalibrationView], output_path: Path) -> None:
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    origins = np.asarray([view.translation_vector for view in views], dtype=np.float64)
+    errors = np.asarray([view.reprojection_rmse_px for view in views], dtype=np.float64)
+    normals = []
+    for view in views:
+        rvec = np.asarray(view.rotation_vector, dtype=np.float64).reshape(3, 1)
+        rotation_matrix, _ = cv2.Rodrigues(rvec)
+        normals.append(rotation_matrix[:, 2])
+    normals_array = np.asarray(normals, dtype=np.float64)
+
+    fig = plt.figure(figsize=(10, 8))
+    ax = fig.add_subplot(111, projection="3d")
+    scatter = ax.scatter(
+        origins[:, 0],
+        origins[:, 1],
+        origins[:, 2],
+        c=errors,
+        cmap="viridis",
+        s=45,
+        depthshade=True,
+    )
+    normal_length = float(max(np.max(np.ptp(origins, axis=0)), 1.0) * 0.12)
+    for origin, normal in zip(origins, normals_array):
+        ax.quiver(
+            origin[0],
+            origin[1],
+            origin[2],
+            normal[0],
+            normal[1],
+            normal[2],
+            length=normal_length,
+            normalize=True,
+            color="black",
+            linewidth=0.9,
+            alpha=0.8,
+        )
+
+    label_indices = list(range(min(3, len(views))))
+    label_indices.extend(
+        index for index, view in enumerate(views) if view.image_name in {"Cam_pos1.png", "Cam_pos2.png"}
+    )
+    for index in sorted(set(label_indices)):
+        origin = origins[index]
+        ax.text(origin[0], origin[1], origin[2], views[index].image_name, fontsize=8)
+
+    ax.scatter([0.0], [0.0], [0.0], color="crimson", marker="x", s=90, linewidths=2.0, label="camera")
+    colorbar = fig.colorbar(scatter, ax=ax, pad=0.08, shrink=0.8)
+    colorbar.set_label("RMSE (px)")
+    all_points = np.vstack([origins, np.zeros((1, 3), dtype=np.float64)])
+    set_3d_axes_equal(ax, all_points)
+    ax.set_xlabel("Xc (mm)")
+    ax.set_ylabel("Yc (mm)")
+    ax.set_zlabel("Zc (mm)")
+    ax.set_title("Board Poses In Camera Coordinates")
+    ax.legend(loc="best")
+    ax.view_init(elev=24, azim=-58)
+    fig.tight_layout()
+    fig.savefig(output_path, dpi=220)
+    plt.close(fig)
+
+
 def write_per_image_errors(output_path: Path, views: list[CalibrationView]) -> None:
     output_path.parent.mkdir(parents=True, exist_ok=True)
     with output_path.open("w", newline="", encoding="utf-8") as handle:
@@ -251,6 +391,7 @@ def write_summary(
     image_paths: list[Path],
     save_overlays: bool,
     calibration_flags: int,
+    visualization_paths: dict[str, str],
 ) -> None:
     failed_images = [record.image_name for record in detection_records if not record.found]
     worst_views = views[:5]
@@ -267,6 +408,11 @@ def write_summary(
         f"- Overall RMS reprojection error: {rms:.9f} px",
         f"- Calibration flags: {calibration_flags}",
         f"- Overlays saved: {save_overlays}",
+        "",
+        "## Visualizations",
+        f"- Reprojection errors plot: {visualization_paths['reprojection_error_plot']}",
+        f"- Image-point coverage plot: {visualization_paths['image_point_coverage_plot']}",
+        f"- Board poses plot: {visualization_paths['camera_pose_plot']}",
         "",
         "## Board Parameters",
         f"- Pattern: {board.pattern_cols} x {board.pattern_rows} symmetric circle grid",
@@ -397,6 +543,19 @@ def run_calibration(args: argparse.Namespace) -> dict[str, Any]:
 
     calibrated_rows.sort(key=lambda item: item["view"].reprojection_rmse_px, reverse=True)
     views = [item["view"] for item in calibrated_rows]
+    visualization_paths = {
+        "reprojection_error_plot": str(output_dir / "reprojection_errors.png"),
+        "image_point_coverage_plot": str(output_dir / "image_point_coverage.png"),
+        "camera_pose_plot": str(output_dir / "camera_poses_3d.png"),
+    }
+    save_reprojection_error_plot(views, Path(visualization_paths["reprojection_error_plot"]))
+    save_image_point_coverage_plot(
+        [item["image_points"] for item in calibrated_rows],
+        image_size,
+        camera_matrix,
+        Path(visualization_paths["image_point_coverage_plot"]),
+    )
+    save_camera_pose_plot(views, Path(visualization_paths["camera_pose_plot"]))
 
     np.savez_compressed(
         output_dir / "calibration_result.npz",
@@ -431,6 +590,7 @@ def run_calibration(args: argparse.Namespace) -> dict[str, Any]:
         "camera_matrix": camera_matrix,
         "dist_coeffs": dist_coeffs.ravel(),
         "board_spec": asdict(board),
+        "visualizations": visualization_paths,
         "detection_records": [asdict(record) for record in detection_records],
         "views": [asdict(view) for view in views],
     }
@@ -451,6 +611,7 @@ def run_calibration(args: argparse.Namespace) -> dict[str, Any]:
         image_paths=image_paths,
         save_overlays=bool(args.save_overlays),
         calibration_flags=int(calibration_flags),
+        visualization_paths=visualization_paths,
     )
 
     return {

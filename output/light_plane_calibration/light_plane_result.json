@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-30T20:50:05",
+  "generated_at": "2026-03-30T21:17:29",
   "config_path": "D:\\laser_extraction\\python_workspace\\light_plane_calibration_config.json",
   "camera_calibration_path": "D:\\laser_extraction\\output\\camera_calibration\\calibration_result.npz",
   "stripe_extraction_params": {
@@ -15,6 +15,16 @@
   },
   "world_reference_image": "Cam_pos1.png",
   "light_plane_plot_path": "D:\\laser_extraction\\output\\light_plane_calibration\\light_plane_3d.png",
+  "visualizations": {
+    "light_plane_plot_path": "D:\\laser_extraction\\output\\light_plane_calibration\\light_plane_3d.png",
+    "light_plane_residual_plot_path": "D:\\laser_extraction\\output\\light_plane_calibration\\light_plane_residuals.png",
+    "laser_pipeline_paths": {
+      "Laser1.png": "D:\\laser_extraction\\output\\light_plane_calibration\\Laser1_pipeline.png",
+      "Laser2.png": "D:\\laser_extraction\\output\\light_plane_calibration\\Laser2_pipeline.png"
+    },
+    "validation_pipeline_path": "D:\\laser_extraction\\output\\light_plane_calibration\\Pic_20260320142001841_pipeline.png",
+    "validation_profile_plot_path": "D:\\laser_extraction\\output\\light_plane_calibration\\Pic_20260320142001841_profile.png"
+  },
   "reference_poses": [
     {
       "image_name": "Cam_pos1.png",
@@ -73,7 +83,8 @@
         350
       ],
       "point_count": 2000,
-      "overlay_path": "D:\\laser_extraction\\output\\light_plane_calibration\\overlays\\Laser1_laser_overlay.png"
+      "overlay_path": "D:\\laser_extraction\\output\\light_plane_calibration\\overlays\\Laser1_laser_overlay.png",
+      "pipeline_plot_path": "D:\\laser_extraction\\output\\light_plane_calibration\\Laser1_pipeline.png"
     },
     {
       "laser_image_name": "Laser2.png",
@@ -86,7 +97,8 @@
         350
       ],
       "point_count": 2000,
-      "overlay_path": "D:\\laser_extraction\\output\\light_plane_calibration\\overlays\\Laser2_laser_overlay.png"
+      "overlay_path": "D:\\laser_extraction\\output\\light_plane_calibration\\overlays\\Laser2_laser_overlay.png",
+      "pipeline_plot_path": "D:\\laser_extraction\\output\\light_plane_calibration\\Laser2_pipeline.png"
     }
   ],
   "light_plane": {

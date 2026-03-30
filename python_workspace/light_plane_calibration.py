@@ -17,7 +17,7 @@ matplotlib.use("Agg")
 import matplotlib.pyplot as plt
 
 from camera_calibration import BoardSpec, build_object_points, create_blob_detector
-from laser_extraction import ROI, overlay_centers, process_image, read_image_unicode
+from laser_extraction import ExtractionResult, ROI, overlay_centers, process_image, read_image_unicode
 
 
 SCRIPT_DIR = Path(__file__).resolve().parent
@@ -46,6 +46,7 @@ class LaserPlaneInput:
     roi: list[int]
     point_count: int
     overlay_path: str | None
+    pipeline_plot_path: str | None = None
 
 
 @dataclass
@@ -76,6 +77,8 @@ class ValidationResult:
     step_fit_coeffs: list[float]
     right_fit_coeffs: list[float]
     overlay_path: str | None
+    pipeline_plot_path: str | None = None
+    profile_plot_path: str | None = None
 
 
 def build_parser() -> argparse.ArgumentParser:
@@ -280,7 +283,9 @@ def compute_plane_metrics(points_3d: np.ndarray, plane_normal: np.ndarray, plane
     return PlaneMetrics(mean_abs_mm=mean_abs_mm, rmse_mm=rmse_mm, std_mm=std_mm, max_abs_mm=max_abs_mm)
 
 
-def mm_to_um(value_mm: float) -> float:
+def mm_to_um(value_mm: Any) -> Any:
+    if isinstance(value_mm, np.ndarray):
+        return value_mm.astype(np.float64) * 1000.0
     return float(value_mm * 1000.0)
 
 
@@ -312,6 +317,93 @@ def save_overlay(
     if not ok:
         raise RuntimeError(f"Failed to encode stripe overlay: {overlay_path}")
     encoded.tofile(str(overlay_path))
+
+
+def image_to_rgb(image: np.ndarray) -> np.ndarray:
+    if image.ndim == 2:
+        return cv2.cvtColor(image, cv2.COLOR_GRAY2RGB)
+    return cv2.cvtColor(image, cv2.COLOR_BGR2RGB)
+
+
+def draw_segment_ranges(canvas: np.ndarray, segment_ranges: dict[str, tuple[int, int]] | None) -> np.ndarray:
+    if not segment_ranges:
+        return canvas
+    result = canvas.copy()
+    colors = {"left": (255, 255, 0), "step": (0, 255, 255), "right": (255, 0, 255)}
+    for name, (x_start, x_end) in segment_ranges.items():
+        color = colors[name]
+        cv2.line(result, (int(x_start), 0), (int(x_start), result.shape[0] - 1), color, 2)
+        cv2.line(result, (int(x_end), 0), (int(x_end), result.shape[0] - 1), color, 2)
+    return result
+
+
+def add_profile_column_marker(image: np.ndarray, column_index: int) -> np.ndarray:
+    canvas = cv2.cvtColor(image, cv2.COLOR_GRAY2BGR) if image.ndim == 2 else image.copy()
+    x_pos = int(np.clip(column_index, 0, canvas.shape[1] - 1))
+    cv2.line(canvas, (x_pos, 0), (x_pos, canvas.shape[0] - 1), (0, 255, 0), 1)
+    return canvas
+
+
+def build_roi_centerline_overlay(extraction: ExtractionResult) -> np.ndarray:
+    canvas = cv2.cvtColor(extraction.enhanced_roi, cv2.COLOR_GRAY2BGR)
+    if len(extraction.centers) >= 2:
+        local_centers = extraction.centers.copy()
+        local_centers[:, 0] -= extraction.roi.x
+        local_centers[:, 1] -= extraction.roi.y
+        polyline = np.round(local_centers).astype(np.int32).reshape((-1, 1, 2))
+        cv2.polylines(canvas, [polyline], False, (0, 0, 255), 1)
+    return canvas
+
+
+def save_extraction_pipeline_plot(
+    extraction: ExtractionResult,
+    output_path: Path,
+    title: str,
+    segment_ranges: dict[str, tuple[int, int]] | None = None,
+) -> None:
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    full_overlay = overlay_centers(extraction.original_image, extraction.centers, extraction.roi)
+    full_overlay = draw_segment_ranges(full_overlay, segment_ranges)
+
+    raw_roi_preview = add_profile_column_marker(extraction.raw_roi, extraction.profile_column_index)
+    filtered_roi_preview = add_profile_column_marker(extraction.filtered_roi, extraction.profile_column_index)
+    enhanced_roi_preview = build_roi_centerline_overlay(extraction)
+
+    local_x = extraction.centers[:, 0] - extraction.roi.x if len(extraction.centers) else np.asarray([], dtype=np.float32)
+    local_y = extraction.centers[:, 1] - extraction.roi.y if len(extraction.centers) else np.asarray([], dtype=np.float32)
+    y_axis = np.arange(len(extraction.raw_profile), dtype=np.float32)
+
+    fig, axes = plt.subplots(2, 3, figsize=(16, 10))
+    axes = axes.ravel()
+    axes[0].imshow(image_to_rgb(full_overlay))
+    axes[0].set_title(f"Full Image / ROI\nROI={extraction.roi}")
+    axes[1].imshow(image_to_rgb(raw_roi_preview))
+    axes[1].set_title("Raw ROI")
+    axes[2].imshow(image_to_rgb(filtered_roi_preview))
+    axes[2].set_title(f"Filtered ROI\nmode={extraction.filter_mode}")
+    axes[3].imshow(image_to_rgb(enhanced_roi_preview))
+    axes[3].set_title("Background-Suppressed ROI + Centerline")
+    axes[4].plot(local_x, local_y, color="crimson", linewidth=1.2)
+    axes[4].invert_yaxis()
+    axes[4].grid(True, linestyle=":", alpha=0.3)
+    axes[4].set_title(f"Centerline In ROI\nmethod={extraction.extraction_method}")
+    axes[4].set_xlabel("ROI x (px)")
+    axes[4].set_ylabel("ROI y (px)")
+    axes[5].plot(extraction.raw_profile, y_axis, color="gray", alpha=0.8, label="raw")
+    axes[5].plot(extraction.filtered_profile, y_axis, color="royalblue", label="filtered")
+    axes[5].plot(extraction.enhanced_profile, y_axis, color="darkorange", label="enhanced")
+    axes[5].invert_yaxis()
+    axes[5].grid(True, linestyle=":", alpha=0.3)
+    axes[5].set_title(f"Center Column Profile\ncol={extraction.profile_column_index}")
+    axes[5].set_xlabel("Intensity")
+    axes[5].set_ylabel("ROI y (px)")
+    axes[5].legend(loc="best")
+    for axis in axes[:4]:
+        axis.axis("off")
+    fig.suptitle(title, fontsize=14)
+    fig.tight_layout()
+    fig.savefig(output_path, dpi=220)
+    plt.close(fig)
 
 
 def build_plane_mesh(points_3d: np.ndarray, plane_normal: np.ndarray, plane_offset: float, steps: int = 20) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
@@ -388,6 +480,44 @@ def save_light_plane_plot(
     plt.close(fig)
 
 
+def save_plane_residual_plot(
+    plane_point_groups: list[np.ndarray],
+    laser_labels: list[str],
+    plane_normal: np.ndarray,
+    plane_offset: float,
+    output_path: Path,
+) -> None:
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    fig, axes = plt.subplots(1, 2, figsize=(14, 5))
+    all_residuals_um: list[np.ndarray] = []
+    colors = ["tab:red", "tab:blue", "tab:green", "tab:orange"]
+    for index, (points, label) in enumerate(zip(plane_point_groups, laser_labels)):
+        color = colors[index % len(colors)]
+        residuals_um = mm_to_um(points @ plane_normal.reshape(3) + plane_offset)
+        all_residuals_um.append(residuals_um)
+        axes[0].plot(residuals_um, color=color, linewidth=1.0, alpha=0.85, label=label)
+    axes[0].axhline(0.0, color="black", linestyle="--", linewidth=1.0)
+    axes[0].set_title("Plane Residuals By Laser Stripe")
+    axes[0].set_xlabel("Point index")
+    axes[0].set_ylabel("Signed distance (um)")
+    axes[0].grid(True, linestyle=":", alpha=0.3)
+    axes[0].legend(loc="best")
+
+    concatenated = np.concatenate(all_residuals_um)
+    axes[1].hist(concatenated, bins=40, color="slateblue", alpha=0.85)
+    axes[1].axvline(float(np.mean(concatenated)), color="crimson", linestyle="--", linewidth=1.0, label="mean")
+    axes[1].axvline(float(np.median(concatenated)), color="darkgreen", linestyle=":", linewidth=1.0, label="median")
+    axes[1].set_title("Plane Residual Histogram")
+    axes[1].set_xlabel("Signed distance (um)")
+    axes[1].set_ylabel("Count")
+    axes[1].grid(True, linestyle=":", alpha=0.3)
+    axes[1].legend(loc="best")
+
+    fig.tight_layout()
+    fig.savefig(output_path, dpi=220)
+    plt.close(fig)
+
+
 def project_points_to_plane_basis(
     points_3d: np.ndarray,
     plane_normal: np.ndarray,
@@ -456,6 +586,64 @@ def compute_step_height_world(
     )
 
 
+def save_validation_profile_plot(
+    projected_profile: np.ndarray,
+    image_points: np.ndarray,
+    segments: dict[str, tuple[int, int]],
+    fit_coeffs: dict[str, np.ndarray],
+    measured_step_height_mm: float,
+    nominal_step_height_mm: float,
+    conservative_error_um: float,
+    output_path: Path,
+) -> None:
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    x_coords = image_points[:, 0]
+    masks = {
+        key: (x_coords >= x_start) & (x_coords <= x_end)
+        for key, (x_start, x_end) in segments.items()
+    }
+    sample_x = float(np.mean(projected_profile[masks["step"], 0]))
+    z_left = float(np.polyval(fit_coeffs["left"], sample_x))
+    z_step = float(np.polyval(fit_coeffs["step"], sample_x))
+    z_right = float(np.polyval(fit_coeffs["right"], sample_x))
+
+    fig, ax = plt.subplots(figsize=(12, 7))
+    ax.scatter(projected_profile[:, 0], projected_profile[:, 1], s=6, alpha=0.15, color="gray", label="all points")
+    colors = {"left": "tab:blue", "step": "tab:orange", "right": "tab:green"}
+    for key in ("left", "step", "right"):
+        color = colors[key]
+        xs = projected_profile[masks[key], 0]
+        zs = projected_profile[masks[key], 1]
+        ax.scatter(xs, zs, s=9, alpha=0.45, color=color, label=f"{key} segment")
+        fit_x = np.linspace(float(xs.min()), float(xs.max()), 200)
+        fit_z = np.polyval(fit_coeffs[key], fit_x)
+        ax.plot(fit_x, fit_z, color=color, linewidth=2.2)
+
+    ax.axvline(sample_x, color="black", linestyle="--", linewidth=1.0, label="sample position")
+    ax.scatter([sample_x, sample_x, sample_x], [z_left, z_step, z_right], color="black", s=28, zorder=5)
+    ax.text(
+        sample_x,
+        z_step,
+        (
+            f"measured={measured_step_height_mm:.6f} mm\n"
+            f"nominal={nominal_step_height_mm:.6f} mm\n"
+            f"conservative={conservative_error_um:.3f} um"
+        ),
+        fontsize=9,
+        ha="left",
+        va="bottom",
+        bbox={"boxstyle": "round,pad=0.3", "facecolor": "white", "alpha": 0.85},
+    )
+    ax.set_title("Quantity-Block World-Z Profile And Line Fits")
+    ax.set_xlabel("Profile coordinate (mm)")
+    ax.set_ylabel("World Z (mm)")
+    ax.grid(True, linestyle=":", alpha=0.3)
+    ax.legend(loc="best")
+    fig.tight_layout()
+    fig.savefig(output_path, dpi=220)
+    plt.close(fig)
+
+
 def to_jsonable(value: Any) -> Any:
     if isinstance(value, np.ndarray):
         return value.tolist()
@@ -520,6 +708,7 @@ def run_light_plane_calibration(args: argparse.Namespace) -> dict[str, Any]:
     plane_points: list[np.ndarray] = []
     plane_rows: list[list[Any]] = []
     laser_inputs: list[LaserPlaneInput] = []
+    laser_pipeline_paths: dict[str, str] = {}
 
     for laser_image, laser_roi, reference_image in zip(laser_images, laser_rois, reference_for_lasers):
         reference_pose = reference_results_by_path[reference_image]
@@ -543,6 +732,15 @@ def run_light_plane_calibration(args: argparse.Namespace) -> dict[str, Any]:
         if args.save_overlays:
             overlay_path = overlay_dir / f"{laser_image.stem}_laser_overlay.png"
             save_overlay(laser_image, extraction.centers, laser_roi, overlay_path)
+            pipeline_plot_path = output_dir / f"{laser_image.stem}_pipeline.png"
+            save_extraction_pipeline_plot(
+                extraction=extraction,
+                output_path=pipeline_plot_path,
+                title=f"{laser_image.name} Stripe Extraction Pipeline",
+            )
+            laser_pipeline_paths[laser_image.name] = str(pipeline_plot_path)
+        else:
+            pipeline_plot_path = None
 
         laser_inputs.append(
             LaserPlaneInput(
@@ -552,6 +750,7 @@ def run_light_plane_calibration(args: argparse.Namespace) -> dict[str, Any]:
                 roi=[laser_roi.x, laser_roi.y, laser_roi.w, laser_roi.h],
                 point_count=int(len(points_3d)),
                 overlay_path=str(overlay_path) if overlay_path is not None else None,
+                pipeline_plot_path=str(pipeline_plot_path) if pipeline_plot_path is not None else None,
             )
         )
         plane_points.append(points_3d)
@@ -572,6 +771,14 @@ def run_light_plane_calibration(args: argparse.Namespace) -> dict[str, Any]:
         plane_normal=light_plane_normal,
         plane_offset=light_plane_offset,
         output_path=light_plane_plot_path,
+    )
+    light_plane_residual_plot_path = output_dir / "light_plane_residuals.png"
+    save_plane_residual_plot(
+        plane_point_groups=plane_points,
+        laser_labels=[item.laser_image_name for item in laser_inputs],
+        plane_normal=light_plane_normal,
+        plane_offset=light_plane_offset,
+        output_path=light_plane_residual_plot_path,
     )
 
     validation_payload: ValidationResult | None = None
@@ -622,6 +829,31 @@ def run_light_plane_calibration(args: argparse.Namespace) -> dict[str, Any]:
                 validation_overlay_path,
                 segment_ranges=validation_segments,
             )
+            validation_pipeline_plot_path = output_dir / f"{validation_image.stem}_pipeline.png"
+            save_extraction_pipeline_plot(
+                extraction=validation_extraction,
+                output_path=validation_pipeline_plot_path,
+                title=f"{validation_image.name} Quantity-Block Extraction Pipeline",
+                segment_ranges=validation_segments,
+            )
+            validation_profile_plot_path = output_dir / f"{validation_image.stem}_profile.png"
+            save_validation_profile_plot(
+                projected_profile=validation_projection,
+                image_points=validation_extraction.centers,
+                segments=validation_segments,
+                fit_coeffs={
+                    "left": validation_arrays["left_fit"],
+                    "step": validation_arrays["step_fit"],
+                    "right": validation_arrays["right_fit"],
+                },
+                measured_step_height_mm=measured_step_height,
+                nominal_step_height_mm=nominal_step_height,
+                conservative_error_um=float(conservative_absolute_error_um),
+                output_path=validation_profile_plot_path,
+            )
+        else:
+            validation_pipeline_plot_path = None
+            validation_profile_plot_path = None
 
         validation_payload = ValidationResult(
             image_name=validation_image.name,
@@ -642,6 +874,8 @@ def run_light_plane_calibration(args: argparse.Namespace) -> dict[str, Any]:
             step_fit_coeffs=[float(value) for value in validation_arrays["step_fit"]],
             right_fit_coeffs=[float(value) for value in validation_arrays["right_fit"]],
             overlay_path=str(validation_overlay_path) if validation_overlay_path is not None else None,
+            pipeline_plot_path=str(validation_pipeline_plot_path) if validation_pipeline_plot_path is not None else None,
+            profile_plot_path=str(validation_profile_plot_path) if validation_profile_plot_path is not None else None,
         )
 
     np.savez_compressed(
@@ -696,6 +930,13 @@ def run_light_plane_calibration(args: argparse.Namespace) -> dict[str, Any]:
         "stripe_extraction_params": to_jsonable(stripe_params),
         "world_reference_image": world_reference_pose.image_name,
         "light_plane_plot_path": str(light_plane_plot_path),
+        "visualizations": {
+            "light_plane_plot_path": str(light_plane_plot_path),
+            "light_plane_residual_plot_path": str(light_plane_residual_plot_path),
+            "laser_pipeline_paths": laser_pipeline_paths,
+            "validation_pipeline_path": None if validation_payload is None else validation_payload.pipeline_plot_path,
+            "validation_profile_plot_path": None if validation_payload is None else validation_payload.profile_plot_path,
+        },
         "reference_poses": [asdict(reference_results_by_path[path]) for path in reference_results_by_path],
         "laser_inputs": [asdict(item) for item in laser_inputs],
         "light_plane": {
@@ -752,9 +993,11 @@ def run_light_plane_calibration(args: argparse.Namespace) -> dict[str, Any]:
         f"- Validation image: {resolve_path(config['validation_image'], config_path).name}",
         f"- World reference image: {world_reference_pose.image_name}",
         f"- 3D light-plane plot: {light_plane_plot_path}",
+        f"- Light-plane residual plot: {light_plane_residual_plot_path}",
         f"- Stripe extraction method: {stripe_params.get('extraction_method', 'global_centroid')}",
         f"- Stripe filter mode: {stripe_params.get('filter_mode', 'gaussian')}",
         f"- Stripe threshold ratio: {float(stripe_params.get('threshold_ratio', 0.3)):.3f}",
+        f"- Stripe ROI mode: {'auto' if stripe_params.get('auto_roi', False) else 'manual (config JSON)'}",
         f"- Validation enabled: {validation_payload is not None}",
         "",
         "## Light Plane Equation",
@@ -772,7 +1015,7 @@ def run_light_plane_calibration(args: argparse.Namespace) -> dict[str, Any]:
         "## Laser / Reference Mapping",
     ]
     summary_lines.extend(
-        f"- {item.laser_image_name} <- {item.reference_image_name}, ROI={item.roi}, points={item.point_count}"
+        f"- {item.laser_image_name} <- {item.reference_image_name}, ROI={item.roi}, points={item.point_count}, pipeline={item.pipeline_plot_path}"
         for item in laser_inputs
     )
     if validation_payload is not None:
@@ -792,6 +1035,8 @@ def run_light_plane_calibration(args: argparse.Namespace) -> dict[str, Any]:
                 f"- Right edge absolute error: {validation_payload.right_absolute_error_um:.3f} um",
                 f"- Left/right consistency gap: {validation_payload.edge_consistency_um:.3f} um",
                 f"- Conservative absolute error: {validation_payload.conservative_absolute_error_um:.3f} um",
+                f"- Validation pipeline plot: {validation_payload.pipeline_plot_path}",
+                f"- Validation profile plot: {validation_payload.profile_plot_path}",
             ]
         )
         if validation_payload.edge_consistency_um > 10.0:

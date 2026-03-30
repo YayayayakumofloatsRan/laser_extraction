@@ -7,9 +7,11 @@
 - Validation image: Pic_20260320142001841.png
 - World reference image: Cam_pos1.png
 - 3D light-plane plot: D:\laser_extraction\output\light_plane_calibration\light_plane_3d.png
+- Light-plane residual plot: D:\laser_extraction\output\light_plane_calibration\light_plane_residuals.png
 - Stripe extraction method: steger_like
 - Stripe filter mode: median+gaussian
 - Stripe threshold ratio: 0.330
+- Stripe ROI mode: manual (config JSON)
 - Validation enabled: True
 
 ## Light Plane Equation
@@ -25,8 +27,8 @@
 - Max: 0.108681235 mm (108.681 um)
 
 ## Laser / Reference Mapping
-- Laser1.png <- Cam_pos1.png, ROI=[1700, 1250, 2000, 350], points=2000
-- Laser2.png <- Cam_pos2.png, ROI=[1750, 1200, 2000, 350], points=2000
+- Laser1.png <- Cam_pos1.png, ROI=[1700, 1250, 2000, 350], points=2000, pipeline=D:\laser_extraction\output\light_plane_calibration\Laser1_pipeline.png
+- Laser2.png <- Cam_pos2.png, ROI=[1750, 1200, 2000, 350], points=2000, pipeline=D:\laser_extraction\output\light_plane_calibration\Laser2_pipeline.png
 
 ## Step Validation
 - Validation image: Pic_20260320142001841.png
@@ -41,6 +43,8 @@
 - Right edge absolute error: 6.570 um
 - Left/right consistency gap: 8.659 um
 - Conservative absolute error: 6.570 um
+- Validation pipeline plot: D:\laser_extraction\output\light_plane_calibration\Pic_20260320142001841_pipeline.png
+- Validation profile plot: D:\laser_extraction\output\light_plane_calibration\Pic_20260320142001841_profile.png
 
 ## Notes
 - Board pose for each laser image is solved from the paired reference image via circle-grid detection and solvePnP.

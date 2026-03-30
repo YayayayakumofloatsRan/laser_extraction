@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-30T20:45:56",
+  "generated_at": "2026-03-30T21:22:09",
   "images_dir": "D:\\laser_extraction\\Campos-8\\Campos-8",
   "output_dir": "D:\\laser_extraction\\output\\camera_calibration",
   "save_overlays": true,
@@ -47,6 +47,11 @@
     "active_pattern_width_mm": 10.0,
     "active_pattern_height_mm": 10.0,
     "board_precision_um": 0.5
+  },
+  "visualizations": {
+    "reprojection_error_plot": "D:\\laser_extraction\\output\\camera_calibration\\reprojection_errors.png",
+    "image_point_coverage_plot": "D:\\laser_extraction\\output\\camera_calibration\\image_point_coverage.png",
+    "camera_pose_plot": "D:\\laser_extraction\\output\\camera_calibration\\camera_poses_3d.png"
   },
   "detection_records": [
     {

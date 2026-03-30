@@ -25,6 +25,9 @@ Generated files:
 - `calibration_result.json`
 - `per_image_errors.csv`
 - `summary.md`
+- `reprojection_errors.png`
+- `image_point_coverage.png`
+- `camera_poses_3d.png`
 - `detections/*.png`
 
 The current implementation now covers both camera calibration and a first-pass light-plane calibration / step-height validation workflow.
@@ -45,6 +48,12 @@ Default outputs:
 - `D:\laser_extraction\output\light_plane_calibration\plane_fit_metrics.csv`
 - `D:\laser_extraction\output\light_plane_calibration\validation_result.json`
 - `D:\laser_extraction\output\light_plane_calibration\summary.md`
+- `D:\laser_extraction\output\light_plane_calibration\light_plane_3d.png`
+- `D:\laser_extraction\output\light_plane_calibration\light_plane_residuals.png`
+- `D:\laser_extraction\output\light_plane_calibration\Laser1_pipeline.png`
+- `D:\laser_extraction\output\light_plane_calibration\Laser2_pipeline.png`
+- `D:\laser_extraction\output\light_plane_calibration\Pic_20260320142001841_pipeline.png`
+- `D:\laser_extraction\output\light_plane_calibration\Pic_20260320142001841_profile.png`
 
 The default config assumes:
 
@@ -53,3 +62,5 @@ The default config assumes:
 - `Pic_20260320142001841.png` is used only for step-height validation
 - current camera calibration default fixes `k2` and `k3`
 - default light-plane stripe extraction uses `steger_like` with `median+gaussian` filtering and `threshold_ratio=0.33`
+- current stripe ROI selection is manual from `python_workspace/light_plane_calibration_config.json`, not auto-ROI
+- `python_workspace/light_plane_calibration.py` reuses `python_workspace/laser_extraction.py::process_image` directly

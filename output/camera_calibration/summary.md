@@ -1,7 +1,7 @@
 # Camera Calibration Summary
 
 ## Run Summary
-- Run time: 2026-03-30T20:45:56
+- Run time: 2026-03-30T21:22:09
 - Images requested: 26
 - Successful detections: 26
 - Failed detections: 0
@@ -9,6 +9,11 @@
 - Overall RMS reprojection error: 2.442910862 px
 - Calibration flags: 193
 - Overlays saved: True
+
+## Visualizations
+- Reprojection errors plot: D:\laser_extraction\output\camera_calibration\reprojection_errors.png
+- Image-point coverage plot: D:\laser_extraction\output\camera_calibration\image_point_coverage.png
+- Board poses plot: D:\laser_extraction\output\camera_calibration\camera_poses_3d.png
 
 ## Board Parameters
 - Pattern: 9 x 9 symmetric circle grid

@@ -30,5 +30,7 @@
     -0.03588109412902828,
     0.7080791756693833
   ],
-  "overlay_path": "D:\\laser_extraction\\output\\light_plane_calibration\\overlays\\Pic_20260320142001841_validation_overlay.png"
+  "overlay_path": "D:\\laser_extraction\\output\\light_plane_calibration\\overlays\\Pic_20260320142001841_validation_overlay.png",
+  "pipeline_plot_path": "D:\\laser_extraction\\output\\light_plane_calibration\\Pic_20260320142001841_pipeline.png",
+  "profile_plot_path": "D:\\laser_extraction\\output\\light_plane_calibration\\Pic_20260320142001841_profile.png"
 }
