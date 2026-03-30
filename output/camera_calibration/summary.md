@@ -1,12 +1,13 @@
 # Camera Calibration Summary
 
 ## Run Summary
-- Run time: 2026-03-30T16:59:04
+- Run time: 2026-03-30T20:45:56
 - Images requested: 26
 - Successful detections: 26
 - Failed detections: 0
 - Image size: 5496 x 3672
-- Overall RMS reprojection error: 2.442742492 px
+- Overall RMS reprojection error: 2.442910862 px
+- Calibration flags: 193
 - Overlays saved: True
 
 ## Board Parameters
@@ -18,19 +19,18 @@
 - Board precision metadata: +/-0.500000 um
 
 ## Intrinsics
-- fx: 22244.939582955
-- fy: 22104.946141983
-- cx: 2611.610820947
-- cy: 1919.076832213
-- Distortion: [-2.059459720e-01, -1.378116583e+00, -3.441469432e-03,  1.009267634e-03,
-  0.000000000e+00]
+- fx: 22164.950482541
+- fy: 22058.055358775
+- cx: 2616.116964408
+- cy: 1811.527440131
+- Distortion: [-0.229981233,  0.         , -0.002432092,  0.000865717,  0.         ]
 
 ## Worst Reprojection Errors
-- Cam_pos5.png: 2.881512592 px
-- Cam_pos13.png: 2.774357000 px
-- Cam_pos12.png: 2.762181553 px
-- Cam_pos16.png: 2.746361315 px
-- Cam_pos15.png: 2.731154924 px
+- Cam_pos5.png: 2.880617223 px
+- Cam_pos13.png: 2.777134352 px
+- Cam_pos12.png: 2.761723516 px
+- Cam_pos16.png: 2.749464796 px
+- Cam_pos15.png: 2.730888745 px
 
 ## Current Focus
 - Camera intrinsics and per-view extrinsics are now ready for downstream light-plane calibration.

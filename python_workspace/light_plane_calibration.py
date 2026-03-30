@@ -10,7 +10,11 @@ from pathlib import Path
 from typing import Any
 
 import cv2
+import matplotlib
 import numpy as np
+
+matplotlib.use("Agg")
+import matplotlib.pyplot as plt
 
 from camera_calibration import BoardSpec, build_object_points, create_blob_detector
 from laser_extraction import ROI, overlay_centers, process_image, read_image_unicode
@@ -310,6 +314,80 @@ def save_overlay(
     encoded.tofile(str(overlay_path))
 
 
+def build_plane_mesh(points_3d: np.ndarray, plane_normal: np.ndarray, plane_offset: float, steps: int = 20) -> tuple[np.ndarray, np.ndarray, np.ndarray]:
+    mins = points_3d.min(axis=0)
+    maxs = points_3d.max(axis=0)
+    span = np.maximum(maxs - mins, 1e-6)
+    mins = mins - 0.1 * span
+    maxs = maxs + 0.1 * span
+    axis = int(np.argmax(np.abs(plane_normal)))
+
+    if axis == 2:
+        xs = np.linspace(mins[0], maxs[0], steps)
+        ys = np.linspace(mins[1], maxs[1], steps)
+        grid_x, grid_y = np.meshgrid(xs, ys)
+        grid_z = (-plane_normal[0] * grid_x - plane_normal[1] * grid_y - plane_offset) / plane_normal[2]
+        return grid_x, grid_y, grid_z
+    if axis == 1:
+        xs = np.linspace(mins[0], maxs[0], steps)
+        zs = np.linspace(mins[2], maxs[2], steps)
+        grid_x, grid_z = np.meshgrid(xs, zs)
+        grid_y = (-plane_normal[0] * grid_x - plane_normal[2] * grid_z - plane_offset) / plane_normal[1]
+        return grid_x, grid_y, grid_z
+
+    ys = np.linspace(mins[1], maxs[1], steps)
+    zs = np.linspace(mins[2], maxs[2], steps)
+    grid_y, grid_z = np.meshgrid(ys, zs)
+    grid_x = (-plane_normal[1] * grid_y - plane_normal[2] * grid_z - plane_offset) / plane_normal[0]
+    return grid_x, grid_y, grid_z
+
+
+def save_light_plane_plot(
+    plane_point_groups: list[np.ndarray],
+    laser_labels: list[str],
+    plane_normal: np.ndarray,
+    plane_offset: float,
+    output_path: Path,
+) -> None:
+    output_path.parent.mkdir(parents=True, exist_ok=True)
+    all_points = np.vstack(plane_point_groups)
+    grid_x, grid_y, grid_z = build_plane_mesh(all_points, plane_normal, plane_offset)
+
+    fig = plt.figure(figsize=(10, 8))
+    ax = fig.add_subplot(111, projection="3d")
+    colors = ["tab:red", "tab:blue", "tab:green", "tab:orange"]
+    for index, (points, label) in enumerate(zip(plane_point_groups, laser_labels)):
+        color = colors[index % len(colors)]
+        ax.scatter(points[:, 0], points[:, 1], points[:, 2], s=6, alpha=0.65, color=color, label=label)
+
+    ax.plot_surface(grid_x, grid_y, grid_z, alpha=0.28, color="gold", edgecolor="none")
+    center = all_points.mean(axis=0)
+    normal_scale = float(np.max(np.ptp(all_points, axis=0)) * 0.25)
+    ax.quiver(
+        center[0],
+        center[1],
+        center[2],
+        plane_normal[0],
+        plane_normal[1],
+        plane_normal[2],
+        length=normal_scale,
+        normalize=True,
+        color="black",
+        linewidth=2.0,
+    )
+    ax.scatter([0.0], [0.0], [0.0], color="black", s=40, marker="x", label="camera origin")
+
+    ax.set_title("Light Plane In Camera Coordinates")
+    ax.set_xlabel("Xc (mm)")
+    ax.set_ylabel("Yc (mm)")
+    ax.set_zlabel("Zc (mm)")
+    ax.legend(loc="best")
+    ax.view_init(elev=25, azim=-60)
+    fig.tight_layout()
+    fig.savefig(output_path, dpi=220)
+    plt.close(fig)
+
+
 def project_points_to_plane_basis(
     points_3d: np.ndarray,
     plane_normal: np.ndarray,
@@ -487,6 +565,14 @@ def run_light_plane_calibration(args: argparse.Namespace) -> dict[str, Any]:
     all_plane_points = np.vstack(plane_points)
     light_plane_normal, light_plane_offset = fit_plane(all_plane_points)
     plane_metrics = compute_plane_metrics(all_plane_points, light_plane_normal, light_plane_offset)
+    light_plane_plot_path = output_dir / "light_plane_3d.png"
+    save_light_plane_plot(
+        plane_point_groups=plane_points,
+        laser_labels=[item.laser_image_name for item in laser_inputs],
+        plane_normal=light_plane_normal,
+        plane_offset=light_plane_offset,
+        output_path=light_plane_plot_path,
+    )
 
     validation_payload: ValidationResult | None = None
     validation_points: np.ndarray | None = None
@@ -609,6 +695,7 @@ def run_light_plane_calibration(args: argparse.Namespace) -> dict[str, Any]:
         "camera_calibration_path": str(camera_calibration_path),
         "stripe_extraction_params": to_jsonable(stripe_params),
         "world_reference_image": world_reference_pose.image_name,
+        "light_plane_plot_path": str(light_plane_plot_path),
         "reference_poses": [asdict(reference_results_by_path[path]) for path in reference_results_by_path],
         "laser_inputs": [asdict(item) for item in laser_inputs],
         "light_plane": {
@@ -662,7 +749,9 @@ def run_light_plane_calibration(args: argparse.Namespace) -> dict[str, Any]:
         f"- Camera calibration: {camera_calibration_path}",
         f"- Reference images: {', '.join(path.name for path in reference_results_by_path)}",
         f"- Laser images: {', '.join(item.laser_image_name for item in laser_inputs)}",
+        f"- Validation image: {resolve_path(config['validation_image'], config_path).name}",
         f"- World reference image: {world_reference_pose.image_name}",
+        f"- 3D light-plane plot: {light_plane_plot_path}",
         f"- Stripe extraction method: {stripe_params.get('extraction_method', 'global_centroid')}",
         f"- Stripe filter mode: {stripe_params.get('filter_mode', 'gaussian')}",
         f"- Stripe threshold ratio: {float(stripe_params.get('threshold_ratio', 0.3)):.3f}",
@@ -716,10 +805,12 @@ def run_light_plane_calibration(args: argparse.Namespace) -> dict[str, Any]:
             "",
             "## Notes",
             "- Board pose for each laser image is solved from the paired reference image via circle-grid detection and solvePnP.",
+            "- Laser stripe center extraction is reused directly from python_workspace/laser_extraction.py.",
             "- Laser 3D points are obtained by intersecting undistorted camera rays with the paired board plane.",
             "- Validation 3D points are obtained by intersecting undistorted camera rays with the fitted light plane.",
             "- Step height is evaluated in the world frame defined by the first paired reference image, with height taken along world Z.",
-            "- The default stripe center extraction now uses the lecture-aligned gray centroid workflow instead of the earlier local peak-window approximation.",
+            "- Pic_20260320142001841.png is used only for quantity-block validation and is not part of the light-plane fitting input.",
+            "- The default stripe center extraction uses the steger_like subpixel method from python_workspace/laser_extraction.py.",
         ]
     )
     (output_dir / "summary.md").write_text("\n".join(summary_lines) + "\n", encoding="utf-8")

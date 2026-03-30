@@ -20,7 +20,6 @@ REPO_ROOT = SCRIPT_DIR.parent
 DEFAULT_IMAGES_DIR = REPO_ROOT / "Campos-8" / "Campos-8"
 DEFAULT_OUTPUT_DIR = REPO_ROOT / "output" / "camera_calibration"
 MIN_VALID_VIEWS = 8
-CALIBRATION_FLAGS = cv2.CALIB_USE_INTRINSIC_GUESS | cv2.CALIB_FIX_K3
 
 
 @dataclass(frozen=True)
@@ -78,7 +77,36 @@ def build_parser() -> argparse.ArgumentParser:
         help="Save detection overlays to output-dir/detections.",
     )
     parser.add_argument("--max-images", type=int, default=None, help="Optional cap on number of images to process.")
+    parser.add_argument(
+        "--fix-k2",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Fix the k2 radial distortion coefficient during calibration.",
+    )
+    parser.add_argument(
+        "--fix-k3",
+        action=argparse.BooleanOptionalAction,
+        default=True,
+        help="Fix the k3 radial distortion coefficient during calibration.",
+    )
+    parser.add_argument(
+        "--zero-tangent-dist",
+        action=argparse.BooleanOptionalAction,
+        default=False,
+        help="Force tangential distortion coefficients p1 and p2 to zero.",
+    )
     return parser
+
+
+def build_calibration_flags(args: argparse.Namespace) -> int:
+    flags = cv2.CALIB_USE_INTRINSIC_GUESS
+    if args.fix_k2:
+        flags |= cv2.CALIB_FIX_K2
+    if args.fix_k3:
+        flags |= cv2.CALIB_FIX_K3
+    if args.zero_tangent_dist:
+        flags |= cv2.CALIB_ZERO_TANGENT_DIST
+    return flags
 
 
 def resolve_image_paths(images_dir: Path, max_images: int | None) -> list[Path]:
@@ -222,6 +250,7 @@ def write_summary(
     dist_coeffs: np.ndarray,
     image_paths: list[Path],
     save_overlays: bool,
+    calibration_flags: int,
 ) -> None:
     failed_images = [record.image_name for record in detection_records if not record.found]
     worst_views = views[:5]
@@ -236,6 +265,7 @@ def write_summary(
         f"- Failed detections: {len(failed_images)}",
         f"- Image size: {image_size[0]} x {image_size[1]}",
         f"- Overall RMS reprojection error: {rms:.9f} px",
+        f"- Calibration flags: {calibration_flags}",
         f"- Overlays saved: {save_overlays}",
         "",
         "## Board Parameters",
@@ -288,6 +318,7 @@ def run_calibration(args: argparse.Namespace) -> dict[str, Any]:
     )
     image_paths = resolve_image_paths(args.images_dir, args.max_images)
     detector = create_blob_detector()
+    calibration_flags = build_calibration_flags(args)
     output_dir = args.output_dir
     output_dir.mkdir(parents=True, exist_ok=True)
     detection_dir = output_dir / "detections"
@@ -333,7 +364,7 @@ def run_calibration(args: argparse.Namespace) -> dict[str, Any]:
         image_size,
         initial_camera_matrix,
         None,
-        flags=CALIBRATION_FLAGS,
+        flags=calibration_flags,
     )
 
     calibrated_rows: list[dict[str, Any]] = []
@@ -381,7 +412,7 @@ def run_calibration(args: argparse.Namespace) -> dict[str, Any]:
         spacing_mm=np.asarray([board.spacing_mm], dtype=np.float64),
         object_points=np.asarray([item["object_points"] for item in calibrated_rows], dtype=np.float32),
         image_points=np.asarray([item["image_points"] for item in calibrated_rows], dtype=np.float32),
-        calibration_flags=np.asarray([CALIBRATION_FLAGS], dtype=np.int32),
+        calibration_flags=np.asarray([calibration_flags], dtype=np.int32),
         rms=np.asarray([rms], dtype=np.float64),
     )
 
@@ -391,8 +422,11 @@ def run_calibration(args: argparse.Namespace) -> dict[str, Any]:
         "output_dir": str(output_dir),
         "save_overlays": bool(args.save_overlays),
         "max_images": args.max_images,
+        "fix_k2": bool(args.fix_k2),
+        "fix_k3": bool(args.fix_k3),
+        "zero_tangent_dist": bool(args.zero_tangent_dist),
         "image_size": [int(image_size[0]), int(image_size[1])],
-        "calibration_flags": int(CALIBRATION_FLAGS),
+        "calibration_flags": int(calibration_flags),
         "overall_rms_reprojection_error_px": float(rms),
         "camera_matrix": camera_matrix,
         "dist_coeffs": dist_coeffs.ravel(),
@@ -416,6 +450,7 @@ def run_calibration(args: argparse.Namespace) -> dict[str, Any]:
         dist_coeffs=dist_coeffs,
         image_paths=image_paths,
         save_overlays=bool(args.save_overlays),
+        calibration_flags=int(calibration_flags),
     )
 
     return {

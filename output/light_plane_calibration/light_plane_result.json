@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-30T19:54:18",
+  "generated_at": "2026-03-30T20:50:05",
   "config_path": "D:\\laser_extraction\\python_workspace\\light_plane_calibration_config.json",
   "camera_calibration_path": "D:\\laser_extraction\\output\\camera_calibration\\calibration_result.npz",
   "stripe_extraction_params": {
@@ -7,64 +7,65 @@
     "blur_kernel": 11,
     "threshold_ratio": 0.33,
     "filter_mode": "median+gaussian",
-    "extraction_method": "peak_window_centroid",
+    "extraction_method": "steger_like",
     "background_kernel": 61,
-    "peak_window_half_height": 27,
+    "peak_window_half_height": 25,
     "smooth_kernel_size": 11,
     "smooth_max_deviation": 8.0
   },
-  "world_reference_image": "Cam_pos15.png",
+  "world_reference_image": "Cam_pos1.png",
+  "light_plane_plot_path": "D:\\laser_extraction\\output\\light_plane_calibration\\light_plane_3d.png",
   "reference_poses": [
     {
-      "image_name": "Cam_pos15.png",
-      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos15.png",
+      "image_name": "Cam_pos1.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos1.png",
       "point_count": 81,
       "rotation_vector": [
-        -0.18254560519704707,
-        -0.7517708711250355,
-        2.9608974115740385
+        0.3724714217074468,
+        -0.41464315148333325,
+        1.5646207345753864
       ],
       "translation_vector": [
-        -1.0756338398558232,
-        3.420378250046859,
-        100.89539796728008
+        4.398985668992885,
+        -3.7781951929393585,
+        96.98326107818973
       ],
       "plane_normal": [
-        -0.13518346089477715,
-        -0.4697199750539754,
-        0.872403906992514
+        -0.01836498149466398,
+        -0.4796809495721823,
+        0.8772507703457605
       ],
-      "plane_offset": -86.56032730305976,
-      "overlay_path": "D:\\laser_extraction\\output\\light_plane_calibration\\overlays\\Cam_pos15_reference.png"
+      "plane_offset": -86.8101814588978,
+      "overlay_path": "D:\\laser_extraction\\output\\light_plane_calibration\\overlays\\Cam_pos1_reference.png"
     },
     {
-      "image_name": "Cam_pos17.png",
-      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos17.png",
+      "image_name": "Cam_pos2.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos2.png",
       "point_count": 81,
       "rotation_vector": [
-        0.28922611705842005,
-        -0.48578610303903286,
-        1.476074850759437
+        0.2871707006168971,
+        -0.5107002057965688,
+        1.5171161940594502
       ],
       "translation_vector": [
-        5.651549595713434,
-        -1.0574338549399334,
-        98.58333776949198
+        4.5047058163572995,
+        -3.5307533232021444,
+        96.60991223842679
       ],
       "plane_normal": [
-        -0.1347619363235334,
-        -0.4727994933255349,
-        0.8708041453905979
+        -0.13967630946265017,
+        -0.48549708634152616,
+        0.8630081736164396
       ],
-      "plane_offset": -85.58511962020916,
-      "overlay_path": "D:\\laser_extraction\\output\\light_plane_calibration\\overlays\\Cam_pos17_reference.png"
+      "plane_offset": -84.4601136814908,
+      "overlay_path": "D:\\laser_extraction\\output\\light_plane_calibration\\overlays\\Cam_pos2_reference.png"
     }
   ],
   "laser_inputs": [
     {
       "laser_image_name": "Laser1.png",
       "laser_image_path": "D:\\laser_extraction\\光平面标定及陶瓷量块数据\\光平面标定及陶瓷量块数据\\Laser-8\\Laser1.png",
-      "reference_image_name": "Cam_pos15.png",
+      "reference_image_name": "Cam_pos1.png",
       "roi": [
         1700,
         1250,
@@ -77,7 +78,7 @@
     {
       "laser_image_name": "Laser2.png",
       "laser_image_path": "D:\\laser_extraction\\光平面标定及陶瓷量块数据\\光平面标定及陶瓷量块数据\\Laser-8\\Laser2.png",
-      "reference_image_name": "Cam_pos17.png",
+      "reference_image_name": "Cam_pos2.png",
       "roi": [
         1750,
         1200,
@@ -90,22 +91,22 @@
   ],
   "light_plane": {
     "equation": {
-      "A": -0.06773120788783514,
-      "B": 0.8736237393484648,
-      "C": 0.48186517359616304,
-      "D": -45.41912359838115
+      "A": 0.0329862124123792,
+      "B": -0.8950945827921143,
+      "C": -0.44465446995042807,
+      "D": 42.13752921077206
     },
     "metrics_mm": {
-      "mean_abs_mm": 0.044782147448112306,
-      "rmse_mm": 0.052347543528778094,
-      "std_mm": 0.052347543528778094,
-      "max_abs_mm": 0.14617004769951336
+      "mean_abs_mm": 0.029694469733171032,
+      "rmse_mm": 0.03622583795407907,
+      "std_mm": 0.03622583795407907,
+      "max_abs_mm": 0.10868123530767804
     },
     "metrics_um": {
-      "mean_abs_um": 44.782147448112305,
-      "rmse_um": 52.3475435287781,
-      "std_um": 52.3475435287781,
-      "max_abs_um": 146.17004769951336
+      "mean_abs_um": 29.694469733171033,
+      "rmse_um": 36.22583795407907,
+      "std_um": 36.22583795407907,
+      "max_abs_um": 108.68123530767804
     },
     "point_count": 4000
   }

@@ -5,17 +5,18 @@
 - Added `python_workspace/camera_calibration.py` for symmetric circle-grid camera calibration.
 - Confirmed the `Campos-8` dataset can be detected as a `9 x 9` symmetric circle board with a `1.0 mm` center spacing assumption.
 - Standardized calibration outputs under `output/camera_calibration`.
-- Latest full calibration baseline: `26/26` valid detections, image size `5496 x 3672`, overall RMS `2.442742492 px`.
+- Updated the camera calibration default distortion model to fix `k2` and `k3`; current baseline is `26/26` valid detections, image size `5496 x 3672`, overall RMS `2.442910862 px`.
 - Added `python_workspace/light_plane_calibration.py` and `python_workspace/light_plane_calibration_config.json` for light-plane fitting and step-height validation.
 - Refactored the validation stage to follow the lecture definition of world coordinates: the first paired reference image defines the world frame and height is evaluated along world `Z`.
-- Current default pairing is `Cam_pos15 -> Laser1`, `Cam_pos17 -> Laser2`; the earlier `Cam_pos1/Cam_pos2` assumption caused a false large validation error.
-- Audited the false-good `0.053 um` result and confirmed it came from `global_centroid` plus left/right cancellation, not from a credible physical improvement.
-- Restored the lecture-style local gray-centroid workflow and tuned it to `filter_mode=median+gaussian`, `threshold_ratio=0.33`, `peak_window_half_height=27`, `extraction_method=peak_window_centroid`.
-- Latest light-plane baseline: fitted plane RMSE stays at the same tens-of-microns level, while the step validation returns to the lecture case range.
-- Latest step validation baseline: measured `1.803690833 mm` versus nominal `1.800000000 mm`, averaged error `3.691 um`, conservative error `8.490 um`, left/right consistency gap `9.599 um`.
+- Restored the experiment-recorded pairing to `Cam_pos1 -> Laser1`, `Cam_pos2 -> Laser2`.
+- Audited the false-good `0.053 um` result and confirmed it came from an over-optimistic extraction/model combination plus left/right cancellation, not from a credible physical improvement.
+- Verified that the user-confirmed `Cam_pos1/Cam_pos2 -> Laser1/Laser2` mapping can reach the lecture range after tightening the camera distortion model and switching stripe extraction to `steger_like`.
+- The light-plane calibration script now also outputs a lecture-style 3D light-plane plot in camera coordinates.
+- Current light-plane baseline under the forced `Cam_pos1/Cam_pos2` mapping: plane RMSE `0.036225838 mm` (`36.226 um`).
+- Current quantity-block validation baseline from `Pic_20260320142001841.png`: measured `1.797759644 mm`, averaged error `2.240 um`, conservative error `6.570 um`, left/right consistency gap `8.659 um`.
 
 ## Current Focus
 
-- Preserve the now-correct pairing, world-frame validation logic, and tuned local gray-centroid extraction settings.
-- Keep checking whether the remaining gap between averaged error and conservative error comes from the lecture's height definition or from still-imperfect stripe center extraction.
+- Preserve the forced `Cam_pos1/Cam_pos2` pairing, the simplified camera distortion model, and the reused `laser_extraction.py` subpixel stripe extraction path.
+- Check whether the remaining `2.240 um` / `6.570 um` gap is explained by the lecture’s exact height definition or by residual stripe-center bias.
 - Keep validating physical board metadata before locking the final production scale.

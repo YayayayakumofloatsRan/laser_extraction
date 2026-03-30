@@ -1,8 +1,8 @@
 {
   "camera_calibration_path": "D:/laser_extraction/output/camera_calibration/calibration_result.npz",
   "reference_images": [
-    "D:/laser_extraction/Campos-8/Campos-8/Cam_pos15.png",
-    "D:/laser_extraction/Campos-8/Campos-8/Cam_pos17.png"
+    "D:/laser_extraction/Campos-8/Campos-8/Cam_pos1.png",
+    "D:/laser_extraction/Campos-8/Campos-8/Cam_pos2.png"
   ],
   "laser_images": [
     "D:/laser_extraction/光平面标定及陶瓷量块数据/光平面标定及陶瓷量块数据/Laser-8/Laser1.png",
@@ -25,9 +25,9 @@
     "blur_kernel": 11,
     "threshold_ratio": 0.33,
     "filter_mode": "median+gaussian",
-    "extraction_method": "peak_window_centroid",
+    "extraction_method": "steger_like",
     "background_kernel": 61,
-    "peak_window_half_height": 27,
+    "peak_window_half_height": 25,
     "smooth_kernel_size": 11,
     "smooth_max_deviation": 8.0
   }
