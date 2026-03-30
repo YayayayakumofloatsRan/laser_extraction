@@ -1,0 +1,100 @@
+{
+  "generated_at": "2026-03-30T18:18:08",
+  "config_path": "D:\\laser_extraction\\python_workspace\\light_plane_calibration_config.json",
+  "camera_calibration_path": "D:\\laser_extraction\\output\\camera_calibration\\calibration_result.npz",
+  "reference_poses": [
+    {
+      "image_name": "Cam_pos1.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos1.png",
+      "point_count": 81,
+      "rotation_vector": [
+        0.3743239057400273,
+        -0.4163397772255519,
+        1.564188538220808
+      ],
+      "translation_vector": [
+        4.418607827053992,
+        -4.257090001760911,
+        97.33841212752938
+      ],
+      "plane_normal": [
+        -0.01825518174062732,
+        -0.4816696865264437,
+        0.8761626911830555
+      ],
+      "plane_offset": -87.25413384288112,
+      "overlay_path": "D:\\laser_extraction\\output\\light_plane_calibration\\overlays\\Cam_pos1_reference.png"
+    },
+    {
+      "image_name": "Cam_pos2.png",
+      "image_path": "D:\\laser_extraction\\Campos-8\\Campos-8\\Cam_pos2.png",
+      "point_count": 81,
+      "rotation_vector": [
+        0.28869546505518295,
+        -0.5130103406990725,
+        1.516299537739515
+      ],
+      "translation_vector": [
+        4.523790681785933,
+        -4.0070710957654345,
+        96.9534190031085
+      ],
+      "plane_normal": [
+        -0.14022749776036786,
+        -0.4876159137588326,
+        0.8617232557619672
+      ],
+      "plane_offset": -84.8665676667726,
+      "overlay_path": "D:\\laser_extraction\\output\\light_plane_calibration\\overlays\\Cam_pos2_reference.png"
+    }
+  ],
+  "laser_inputs": [
+    {
+      "laser_image_name": "Laser1.png",
+      "laser_image_path": "D:\\laser_extraction\\光平面标定及陶瓷量块数据\\光平面标定及陶瓷量块数据\\Laser-8\\Laser1.png",
+      "reference_image_name": "Cam_pos1.png",
+      "roi": [
+        1700,
+        1250,
+        2000,
+        350
+      ],
+      "point_count": 2000,
+      "overlay_path": "D:\\laser_extraction\\output\\light_plane_calibration\\overlays\\Laser1_laser_overlay.png"
+    },
+    {
+      "laser_image_name": "Laser2.png",
+      "laser_image_path": "D:\\laser_extraction\\光平面标定及陶瓷量块数据\\光平面标定及陶瓷量块数据\\Laser-8\\Laser2.png",
+      "reference_image_name": "Cam_pos2.png",
+      "roi": [
+        1750,
+        1200,
+        2000,
+        350
+      ],
+      "point_count": 2000,
+      "overlay_path": "D:\\laser_extraction\\output\\light_plane_calibration\\overlays\\Laser2_laser_overlay.png"
+    }
+  ],
+  "light_plane": {
+    "equation": {
+      "A": 0.03319208869413251,
+      "B": -0.9068181802187698,
+      "C": -0.4202131283918193,
+      "D": 39.43470257617745
+    },
+    "metrics_mm": {
+      "mean_abs_mm": 0.026348213599551806,
+      "rmse_mm": 0.0313836213037668,
+      "std_mm": 0.0313836213037668,
+      "max_abs_mm": 0.09503306197132844
+    },
+    "metrics_um": {
+      "mean_abs_um": 26.348213599551805,
+      "rmse_um": 31.383621303766798,
+      "std_um": 31.383621303766798,
+      "max_abs_um": 95.03306197132844
+    },
+    "point_count": 4000
+  }
+}
