@@ -16,7 +16,7 @@
   "validation_roi": [0, 1300, 5496, 650],
   "validation_segments": {
     "left": [400, 1500],
-    "step": [2500, 3600],
+    "step": [2700, 3500],
     "right": [4500, 5000]
   },
   "nominal_step_height_mm": 1.8,

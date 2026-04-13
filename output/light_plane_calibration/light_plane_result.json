@@ -1,5 +1,5 @@
 {
-  "generated_at": "2026-03-30T21:50:50",
+  "generated_at": "2026-04-13T12:38:16",
   "config_path": "D:\\laser_extraction\\python_workspace\\light_plane_calibration_config.json",
   "camera_calibration_path": "D:\\laser_extraction\\output\\camera_calibration\\calibration_result.npz",
   "stripe_extraction_params": {

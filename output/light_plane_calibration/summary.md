@@ -33,16 +33,16 @@
 ## Step Validation
 - Validation image: Pic_20260320142001841.png
 - ROI: [0, 1300, 5496, 650]
-- Segments: {'left': (400, 1500), 'step': (2500, 3600), 'right': (4500, 5000)}
+- Segments: {'left': (400, 1500), 'step': (2700, 3500), 'right': (4500, 5000)}
 - Nominal height: 1.800000000 mm
-- Measured height: 1.797770158 mm
-- Absolute error: 0.002229842 mm (2.230 um)
-- Left-step distance: 1.802099738 mm
-- Right-step distance: 1.793440578 mm
-- Left edge absolute error: 2.100 um
-- Right edge absolute error: 6.559 um
-- Left/right consistency gap: 8.659 um
-- Conservative absolute error: 6.559 um
+- Measured height: 1.799493965 mm
+- Absolute error: 0.000506035 mm (0.506 um)
+- Left-step distance: 1.798486164 mm
+- Right-step distance: 1.800501765 mm
+- Left edge absolute error: 1.514 um
+- Right edge absolute error: 0.502 um
+- Left/right consistency gap: 2.016 um
+- Conservative absolute error: 1.514 um
 - Validation pipeline plot: D:\laser_extraction\output\light_plane_calibration\Pic_20260320142001841_pipeline.png
 - Validation profile plot: D:\laser_extraction\output\light_plane_calibration\Pic_20260320142001841_profile.png
 

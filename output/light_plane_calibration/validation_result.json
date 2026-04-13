@@ -9,22 +9,22 @@
   ],
   "point_count": 5496,
   "nominal_step_height_mm": 1.8,
-  "measured_step_height_mm": 1.797770157745977,
-  "absolute_error_mm": 0.0022298422540230067,
-  "absolute_error_um": 2.2298422540230067,
-  "left_step_distance_mm": 1.8020997377319992,
-  "right_step_distance_mm": 1.793440577759955,
-  "left_absolute_error_um": 2.0997377319991184,
-  "right_absolute_error_um": 6.559422240045132,
-  "edge_consistency_um": 8.65915997204425,
-  "conservative_absolute_error_um": 6.559422240045132,
+  "measured_step_height_mm": 1.7994939649595807,
+  "absolute_error_mm": 0.0005060350404193503,
+  "absolute_error_um": 0.5060350404193503,
+  "left_step_distance_mm": 1.7984861644600036,
+  "right_step_distance_mm": 1.8005017654591575,
+  "left_absolute_error_um": 1.5138355399963999,
+  "right_absolute_error_um": 0.5017654591574772,
+  "edge_consistency_um": 2.015600999153877,
+  "conservative_absolute_error_um": 1.5138355399963999,
   "left_fit_coeffs": [
     0.012784851475758122,
     0.9103320760805944
   ],
   "step_fit_coeffs": [
-    -0.003727541934124637,
-    -0.9574616281379288
+    -0.002748497528389861,
+    -0.9533608813857878
   ],
   "right_fit_coeffs": [
     -0.035870869317547786,
