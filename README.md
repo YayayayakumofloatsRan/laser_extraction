@@ -64,3 +64,20 @@ The default config assumes:
 - default light-plane stripe extraction uses `steger_like` with `median+gaussian` filtering and `threshold_ratio=0.33`
 - current stripe ROI selection is manual from `python_workspace/light_plane_calibration_config.json`, not auto-ROI
 - `python_workspace/light_plane_calibration.py` reuses `python_workspace/laser_extraction.py::process_image` directly
+
+## Validation Confidence Audit
+
+Default command:
+
+```powershell
+python D:\laser_extraction\python_workspace\validation_confidence_audit.py --config D:\laser_extraction\python_workspace\light_plane_calibration_config.json --output-dir D:\laser_extraction\output\light_plane_calibration\confidence_audit
+```
+
+Generated files:
+
+- `D:\laser_extraction\output\light_plane_calibration\confidence_audit\confidence_audit.md`
+- `D:\laser_extraction\output\light_plane_calibration\confidence_audit\confidence_audit.json`
+- `D:\laser_extraction\output\light_plane_calibration\confidence_audit\validation_segment_sensitivity.csv`
+- `D:\laser_extraction\output\light_plane_calibration\confidence_audit\extraction_method_sensitivity.csv`
+
+This audit is meant to quantify how sensitive the quantity-block result is to validation-window choices and extraction-method choices. Treat the audit as a guardrail against over-claiming a single sub-micron number from one manually selected validation window.

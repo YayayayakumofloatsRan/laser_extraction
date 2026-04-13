@@ -1,0 +1,159 @@
+{
+  "config_path": "D:\\laser_extraction\\python_workspace\\light_plane_calibration_config.json",
+  "configured_segments": {
+    "left": [
+      400,
+      1500
+    ],
+    "step": [
+      2700,
+      3500
+    ],
+    "right": [
+      4500,
+      5000
+    ]
+  },
+  "configured_result": {
+    "image_name": "Pic_20260320142001841.png",
+    "image_path": "D:\\laser_extraction\\光平面标定及陶瓷量块数据\\光平面标定及陶瓷量块数据\\Pic_20260320142001841.png",
+    "roi": [
+      0,
+      1300,
+      5496,
+      650
+    ],
+    "point_count": 5496,
+    "nominal_step_height_mm": 1.8,
+    "measured_step_height_mm": 1.7994939649595807,
+    "absolute_error_mm": 0.0005060350404193503,
+    "absolute_error_um": 0.5060350404193503,
+    "left_step_distance_mm": 1.7984861644600036,
+    "right_step_distance_mm": 1.8005017654591575,
+    "left_absolute_error_um": 1.5138355399963999,
+    "right_absolute_error_um": 0.5017654591574772,
+    "edge_consistency_um": 2.015600999153877,
+    "conservative_absolute_error_um": 1.5138355399963999,
+    "left_fit_coeffs": [
+      0.012784851475758122,
+      0.9103320760805944
+    ],
+    "step_fit_coeffs": [
+      -0.002748497528389861,
+      -0.9533608813857878
+    ],
+    "right_fit_coeffs": [
+      -0.035870869317547786,
+      0.708097871484186
+    ],
+    "overlay_path": null,
+    "pipeline_plot_path": null,
+    "profile_plot_path": null
+  },
+  "segment_sensitivity_summary": {
+    "measured_step_height_mm": {
+      "min": 1.7966342480919901,
+      "p05": 1.7977945471125898,
+      "median": 1.800286452201906,
+      "p95": 1.8020155822461252,
+      "max": 1.802842398684251
+    },
+    "absolute_error_um": {
+      "min": 0.048975810242213313,
+      "p05": 0.20390817665116856,
+      "median": 0.9835923658270129,
+      "p95": 2.4367486930387816,
+      "max": 3.3657519080099174
+    },
+    "conservative_error_um": {
+      "min": 0.5272293920590698,
+      "p05": 1.3071786281548814,
+      "median": 4.730313613730441,
+      "p95": 11.153560068730917,
+      "max": 14.550775047115883
+    },
+    "edge_gap_um": {
+      "min": 0.6466424308155805,
+      "p05": 0.6596315836882027,
+      "median": 7.360929817150863,
+      "p95": 18.069137080279685,
+      "max": 23.416752725729406
+    }
+  },
+  "best_conservative_window_in_grid": {
+    "left_start": 400,
+    "left_end": 1500,
+    "step_start": 2600,
+    "step_end": 3575,
+    "right_start": 4500,
+    "right_end": 5000,
+    "measured_step_height_mm": 1.8002039081766512,
+    "absolute_error_um": 0.20390817665116856,
+    "left_error_um": 0.5272293920590698,
+    "right_error_um": 0.11941303875651066,
+    "edge_gap_um": 0.6466424308155805,
+    "conservative_error_um": 0.5272293920590698
+  },
+  "worst_conservative_window_in_grid": {
+    "left_start": 400,
+    "left_end": 1500,
+    "step_start": 2800,
+    "step_end": 3600,
+    "right_start": 4500,
+    "right_end": 5000,
+    "measured_step_height_mm": 1.802842398684251,
+    "absolute_error_um": 2.8423986842509574,
+    "left_error_um": 8.865977678613524,
+    "right_error_um": 14.550775047115883,
+    "edge_gap_um": 23.416752725729406,
+    "conservative_error_um": 14.550775047115883
+  },
+  "method_sensitivity": [
+    {
+      "method": "global_centroid",
+      "measured_step_height_mm": 2.062792934518098,
+      "absolute_error_um": 262.7929345180979,
+      "left_error_um": 207.29317971363304,
+      "right_error_um": 318.2926893225628,
+      "edge_gap_um": 110.9995096089298,
+      "conservative_error_um": 318.2926893225628,
+      "plane_rmse_um": 31.877929879341607
+    },
+    {
+      "method": "peak_window_centroid",
+      "measured_step_height_mm": 2.0531052126524663,
+      "absolute_error_um": 253.1052126524662,
+      "left_error_um": 263.87349833591657,
+      "right_error_um": 242.33692696901588,
+      "edge_gap_um": 21.53657136690068,
+      "conservative_error_um": 263.87349833591657,
+      "plane_rmse_um": 32.09259371019291
+    },
+    {
+      "method": "gaussian_fit",
+      "measured_step_height_mm": 1.7993731334574314,
+      "absolute_error_um": 0.6268665425686049,
+      "left_error_um": 0.18763681104405627,
+      "right_error_um": 1.0660962740931534,
+      "edge_gap_um": 0.8784594630490972,
+      "conservative_error_um": 1.0660962740931534,
+      "plane_rmse_um": 36.43766229038389
+    },
+    {
+      "method": "steger_like",
+      "measured_step_height_mm": 1.7994939649595807,
+      "absolute_error_um": 0.5060350404193503,
+      "left_error_um": 1.5138355399963999,
+      "right_error_um": 0.5017654591574772,
+      "edge_gap_um": 2.015600999153877,
+      "conservative_error_um": 1.5138355399963999,
+      "plane_rmse_um": 36.545409052693145
+    }
+  ],
+  "notes": [
+    "This audit perturbs only the configured step segment while keeping left/right segments fixed.",
+    "The perturbation audit is intended to test robustness, not to select a new window from the same validation truth.",
+    "A single quantity-block image cannot justify a very-high-confidence sub-micron system claim by itself.",
+    "Use conservative_error_um and edge_gap_um as primary guardrails; absolute_error_um alone can be misleading."
+  ]
+}

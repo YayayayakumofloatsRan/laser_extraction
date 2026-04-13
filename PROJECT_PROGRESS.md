@@ -17,11 +17,14 @@
 - Current light-plane baseline under the forced `Cam_pos1/Cam_pos2` mapping: plane RMSE `0.036545409 mm` (`36.545 um`).
 - Re-audited the quantity-block validation segments and tightened the default `step` window from `[2500, 3600]` to `[2700, 3500]` so the line fit stays inside the flatter center region instead of bleeding into the transition shoulders.
 - Current quantity-block validation baseline from `Pic_20260320142001841.png`: measured `1.799493965 mm`, averaged error `0.506 um`, conservative error `1.514 um`, left/right consistency gap `2.016 um`.
+- Added `python_workspace/validation_confidence_audit.py` to quantify how much the quantity-block result moves when the configured `step` segment is perturbed and when the extraction method changes.
+- Current confidence-audit summary around the configured `step=[2700, 3500]`: configured absolute error `0.506 um`, but step-window perturbation gives conservative-error envelope `p05=1.307 um`, `median=4.730 um`, `p95=11.154 um`. This supports a low-micron claim on the dataset, but not a very-high-confidence sub-micron system claim from one window alone.
 
 ## Current Focus
 
 - Preserve the forced `Cam_pos1/Cam_pos2` pairing, the simplified camera distortion model, and the reused `laser_extraction.py` subpixel stripe extraction path.
 - Preserve the audited `Laser2 ROI=[1750, 1200, 1900, 350]`; larger left/right shifts looked visually tempting but were numerically worse.
 - Preserve the re-audited validation segments `left=[400, 1500], step=[2700, 3500], right=[4500, 5000]`; the wider step window looked harmless visually but pulled the fit toward the step shoulders and inflated the conservative error.
+- Treat `output/light_plane_calibration/confidence_audit/*` as part of the validation package whenever claiming final accuracy; the configured scalar result is not enough by itself for a high-confidence statement.
 - Use the new process figures to decide whether any remaining sub-micron / low-micron gap comes from residual stripe-center bias, manual ROI choice, or the lecture's exact height definition.
 - Keep validating physical board metadata before locking the final production scale.
